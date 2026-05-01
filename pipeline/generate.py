@@ -8,6 +8,7 @@ from a target model, saving results for downstream evaluation.
 
 import json
 import random
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -88,7 +89,6 @@ class CorpusGenerator:
             print(f"Loading {dataset_name}...")
             try:
                 ds = load_dataset(cfg["path"], cfg["name"], split=cfg["split"], trust_remote_code=True)
-                # shuffle and sample
                 indices = random.sample(range(len(ds)), min(n_per_dataset * 3, len(ds)))
                 for idx in indices:
                     row = ds[idx]
@@ -136,22 +136,51 @@ class CorpusGenerator:
         self,
         n_per_dataset: int = 150,
         output_path: str = "corpus.jsonl",
+        resume: bool = True,
     ) -> list[dict]:
         """
         Generate watermarked and unwatermarked completions and save to JSONL.
 
-        Returns list of result dicts.
+        Args:
+            n_per_dataset: Number of prompts to sample per dataset.
+            output_path: Path to output JSONL file.
+            resume: If True and the file exists, skip already-completed (source, prompt, watermarked) triples.
+        Returns:
+            List of all result dicts (existing + newly generated).
         """
-        prompts = self._load_prompts(n_per_dataset)
-        print(f"Generating from {len(prompts)} prompts (watermarked + control)...")
-
-        results = []
         output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
 
-        with output_file.open("w") as f:
+        # Load existing results for resume
+        existing: list[dict] = []
+        completed_keys: set[tuple] = set()
+        if resume and output_file.exists():
+            with output_file.open() as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        item = json.loads(line)
+                        existing.append(item)
+                        completed_keys.add((item["source"], item["prompt"], item["watermarked"]))
+            print(f"Resuming: found {len(existing)} existing samples, {len(completed_keys)} completed (source, prompt, wm) pairs.")
+
+        prompts = self._load_prompts(n_per_dataset)
+        total = len(prompts) * 2
+        skipped = 0
+        generated = 0
+        start_time = time.time()
+
+        file_mode = "a" if (resume and output_file.exists()) else "w"
+        results = list(existing)
+
+        with output_file.open(file_mode) as f:
             for i, item in enumerate(prompts):
-                print(f"  [{i+1}/{len(prompts)}] {item['source']}", end="\r")
                 for wm in [True, False]:
+                    key = (item["source"], item["prompt"], wm)
+                    if key in completed_keys:
+                        skipped += 1
+                        continue
+
                     try:
                         result = self._generate(item["prompt"], watermark=wm)
                         result["source"] = item["source"]
@@ -160,11 +189,27 @@ class CorpusGenerator:
                         result["gamma"] = self.gamma
                         result["seed"] = self.seed
                         f.write(json.dumps(result) + "\n")
+                        f.flush()
                         results.append(result)
-                    except Exception as e:
-                        print(f"\n  Error on prompt {i}: {e}")
+                        generated += 1
 
-        print(f"\nSaved {len(results)} samples to {output_path}")
+                        # Progress log every 10 new generations
+                        if generated % 10 == 0:
+                            elapsed = time.time() - start_time
+                            remaining = total - skipped - generated
+                            eta = (elapsed / generated * remaining) if generated > 0 else 0
+                            mem_str = ""
+                            if torch.cuda.is_available():
+                                mem_gb = torch.cuda.memory_allocated() / 1e9
+                                mem_str = f"  GPU mem: {mem_gb:.1f}GB"
+                            print(
+                                f"  [{generated} new / {skipped} skipped / {remaining} remaining]"
+                                f"  ETA: {eta/60:.1f}min{mem_str}"
+                            )
+                    except Exception as e:
+                        print(f"\n  Error on prompt {i} (wm={wm}): {e}")
+
+        print(f"\nDone. {generated} new samples generated, {skipped} skipped. Total in file: {len(results)}.")
         return results
 
 
