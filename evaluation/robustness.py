@@ -4,12 +4,13 @@ Robustness evaluation: adversarial modifications to watermarked text.
 Tests whether detection survives:
   1. Random word substitutions (synonym or random replacement)
   2. Token insertion / deletion
-  3. Paraphrasing (placeholder — requires an LLM paraphraser)
+  3. LLM-based paraphrasing
 """
 
 import random
-import re
 from typing import List, Optional
+
+import torch
 
 
 def apply_word_substitution(
@@ -35,7 +36,6 @@ def apply_word_substitution(
     indices = rng.sample(range(len(words)), min(n_to_replace, len(words)))
 
     # Simple random replacement: swap with a word from elsewhere in the text
-    # (a real adversary would use synonyms, but this tests robustness)
     word_pool = [w for w in words if len(w) > 3]
     if not word_pool:
         word_pool = words
@@ -82,16 +82,52 @@ def apply_token_insertion_deletion(
     return ids
 
 
-def apply_paraphrase_placeholder(text: str) -> str:
+def apply_llm_paraphrase(
+    texts: List[str],
+    model,
+    tokenizer,
+    device: str,
+    batch_size: int = 4,
+) -> List[str]:
     """
-    Placeholder for LLM-based paraphrasing.
-    In the actual experiment, replace this with a call to a paraphrasing model
-    (e.g., prompt another LLM: 'Rewrite this text in different words: {text}').
+    Paraphrase texts using an LLM. Critically, no LogitsProcessor is applied —
+    the paraphraser must NOT re-embed the watermark.
+
+    Args:
+        texts: List of text strings to paraphrase.
+        model: A loaded HuggingFace causal LM.
+        tokenizer: Matching tokenizer.
+        device: "cuda" or "cpu".
+        batch_size: How many texts to process at once.
+    Returns:
+        List of paraphrased strings, same length as input.
     """
-    raise NotImplementedError(
-        "Paraphrasing requires an external LLM call. "
-        "Use pipeline/generate.py with a paraphrase prompt to implement this."
-    )
+    results = []
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i : i + batch_size]
+        for text in batch:
+            prompt = (
+                "Rewrite the following passage in different words while preserving meaning. "
+                "Return ONLY the rewrite, no preamble.\n\n"
+                f"Passage:\n{text}\n\nRewrite:"
+            )
+            inputs = tokenizer(
+                prompt, return_tensors="pt", truncation=True, max_length=512
+            ).to(device)
+            with torch.no_grad():
+                output_ids = model.generate(
+                    **inputs,
+                    max_new_tokens=250,
+                    do_sample=True,
+                    temperature=0.8,
+                    top_p=0.95,
+                    pad_token_id=tokenizer.pad_token_id,
+                )
+            prompt_len = inputs["input_ids"].shape[1]
+            rewrite_ids = output_ids[0, prompt_len:]
+            rewrite_text = tokenizer.decode(rewrite_ids, skip_special_tokens=True)
+            results.append(rewrite_text.strip())
+    return results
 
 
 def evaluate_robustness(
@@ -99,14 +135,25 @@ def evaluate_robustness(
     detector,
     tokenizer,
     substitution_rates: List[float] = [0.05, 0.10, 0.15, 0.20],
+    paraphraser_model=None,
+    paraphraser_tokenizer=None,
+    device: str = "cpu",
 ) -> dict:
     """
     Run robustness experiments on a watermarked corpus.
 
-    Returns dict mapping experiment_name -> list of DetectionResult objects.
+    Args:
+        corpus: List of sample dicts with 'completion', 'token_ids', 'watermarked'.
+        detector: WatermarkDetector instance.
+        tokenizer: Tokenizer matching the generation model.
+        substitution_rates: Word substitution rates to evaluate.
+        paraphraser_model: If provided, runs LLM paraphrase condition.
+        paraphraser_tokenizer: Required when paraphraser_model is given.
+        device: Device string for paraphraser ("cuda" or "cpu").
+    Returns:
+        Dict mapping experiment_name -> list of DetectionResult objects.
     """
     results = {}
-
     wm_items = [item for item in corpus if item["watermarked"]]
 
     # Baseline: no modification
@@ -147,4 +194,43 @@ def evaluate_robustness(
         ins_results.append(r)
     results["token_insertion_10pct"] = ins_results
 
+    # LLM paraphrase (only if paraphraser provided)
+    if paraphraser_model is not None and paraphraser_tokenizer is not None:
+        print("Running LLM paraphrase condition...")
+        wm_texts = [item["completion"] for item in wm_items]
+        paraphrased = apply_llm_paraphrase(
+            wm_texts, paraphraser_model, paraphraser_tokenizer, device=device
+        )
+        para_results = []
+        for para_text in paraphrased:
+            para_ids = paraphraser_tokenizer.encode(para_text, add_special_tokens=False)
+            r = detector.score_sequence(para_ids)
+            para_results.append(r)
+        results["llm_paraphrase"] = para_results
+
     return results
+
+
+if __name__ == "__main__":
+    # Sanity check: paraphrase two short strings and print side by side.
+    # Requires a model to be loaded — uses a tiny local model for quick verification.
+    import sys
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+
+    model_name = sys.argv[1] if len(sys.argv) > 1 else "gpt2"
+    print(f"Loading {model_name} for paraphrase sanity check...")
+    tok = AutoTokenizer.from_pretrained(model_name)
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    mdl = AutoModelForCausalLM.from_pretrained(model_name).to(device)
+    mdl.eval()
+
+    test_inputs = [
+        "The quick brown fox jumps over the lazy dog near the river bank.",
+        "Machine learning models are trained on large datasets to recognize patterns.",
+    ]
+    rewrites = apply_llm_paraphrase(test_inputs, mdl, tok, device=device)
+    for orig, rw in zip(test_inputs, rewrites):
+        print(f"\nINPUT:  {orig}")
+        print(f"OUTPUT: {rw}")
