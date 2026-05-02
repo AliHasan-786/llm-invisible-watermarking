@@ -109,5 +109,5 @@ with open(OUTPUT_PATH, "w") as f:
     json.dump(summary_results, f, indent=2)
 print(f"\nSaved robustness summary to {OUTPUT_PATH}")
 
-np.savez(OUTPUT_PATH.replace(".json", "_zscores.npz"), **{k: v for k, v in all_z_arrays.items()})
+np.savez(ZSCORES_PATH, **all_z_arrays)
 print(f"Saved raw z-score arrays to {ZSCORES_PATH}")

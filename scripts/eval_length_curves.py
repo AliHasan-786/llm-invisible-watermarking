@@ -50,36 +50,35 @@ wm_items = [x for x in corpus if x["watermarked"]]
 uwm_items = [x for x in corpus if not x["watermarked"]]
 print(f"  {len(wm_items)} watermarked, {len(uwm_items)} unwatermarked")
 
-# Pre-compute full-length z-scores for unwatermarked (for calibration)
-print("Computing unwatermarked z-scores (full length, for per-bin calibration)...")
-uwm_z_full = [detector.score_sequence(item["token_ids"]).z_score for item in uwm_items]
-
 length_curve = []
 for n_tok in LENGTH_BINS:
-    # Truncate watermarked token_ids to n_tok and recompute z-scores
-    wm_z_truncated = []
-    for item in wm_items:
-        truncated = item["token_ids"][:n_tok]
-        r = detector.score_sequence(truncated)
-        wm_z_truncated.append(r.z_score)
+    # Filter to items with AT LEAST n_tok tokens, then truncate exactly to n_tok
+    wm_at_length = [item for item in wm_items if len(item["token_ids"]) >= n_tok]
+    uwm_at_length = [item for item in uwm_items if len(item["token_ids"]) >= n_tok]
 
-    # Also truncate unwatermarked to n_tok for per-length calibration
-    uwm_z_truncated = []
-    for item in uwm_items:
-        truncated = item["token_ids"][:n_tok]
-        r = detector.score_sequence(truncated)
-        uwm_z_truncated.append(r.z_score)
+    if len(wm_at_length) < 10 or len(uwm_at_length) < 10:
+        # Not enough samples at this length — skip with note
+        print(f"  n_tokens={n_tok:4d}  SKIPPED (n_wm={len(wm_at_length)}, n_uwm={len(uwm_at_length)})")
+        continue
+
+    wm_z_truncated = [
+        detector.score_sequence(item["token_ids"][:n_tok]).z_score for item in wm_at_length
+    ]
+    uwm_z_truncated = [
+        detector.score_sequence(item["token_ids"][:n_tok]).z_score for item in uwm_at_length
+    ]
 
     threshold, tpr, fpr = compute_tpr_at_fpr(wm_z_truncated, uwm_z_truncated, TARGET_FPR)
-    n_valid = sum(1 for item in wm_items if len(item["token_ids"]) >= n_tok)
 
-    print(f"  n_tokens={n_tok:4d}  TPR={tpr:.3f}  threshold={threshold:.3f}  n_full_length={n_valid}")
+    print(f"  n_tokens={n_tok:4d}  TPR={tpr:.3f}  threshold={threshold:.3f}  "
+          f"n_wm={len(wm_at_length)}  n_uwm={len(uwm_at_length)}")
     length_curve.append({
         "n_tokens": n_tok,
         "tpr": float(tpr),
         "fpr": float(fpr),
         "threshold": float(threshold),
-        "n_wm_with_full_length": n_valid,
+        "n_wm": len(wm_at_length),
+        "n_uwm": len(uwm_at_length),
         "calibration": "per_length",
     })
 
