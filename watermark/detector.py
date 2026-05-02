@@ -74,13 +74,25 @@ class WatermarkDetector:
             )
 
         green_count = 0
-        total = len(token_ids) - 1  # first token has no predecessor to hash
+        total = 0  # increments only for valid (in-vocab) tokens
 
         for i in range(1, len(token_ids)):
             prev_token = token_ids[i - 1]
+            cur_token = token_ids[i]
+            # Skip tokens outside the (tokenizer) vocab — consistent with processor's clamp.
+            # In practice the model never emits such tokens, but guard defensively.
+            if prev_token >= self.vocab_size or cur_token >= self.vocab_size:
+                continue
             greenlist = self._get_greenlist_set(prev_token)
-            if token_ids[i] in greenlist:
+            if cur_token in greenlist:
                 green_count += 1
+            total += 1
+
+        if total == 0:
+            return DetectionResult(
+                z_score=0.0, p_value=1.0, green_count=0,
+                total_tokens=0, green_fraction=0.0, is_watermarked=False
+            )
 
         expected = self.gamma * total
         std = math.sqrt(total * self.gamma * (1 - self.gamma))

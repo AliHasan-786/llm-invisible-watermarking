@@ -44,8 +44,19 @@ class WatermarkLogitsProcessor(LogitsProcessor):
         return greenlist
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
+        # Source of truth for valid logit indices is the scores tensor itself,
+        # NOT tokenizer.vocab_size. Some models (e.g. Gemma-3) pad their embeddings
+        # so scores.shape[-1] != tokenizer vocab size.
+        actual_vocab = scores.shape[-1]
+
         for batch_idx in range(input_ids.shape[0]):
             prev_token_id = input_ids[batch_idx, -1].item()
             greenlist_ids = self._get_greenlist_ids(prev_token_id)
-            scores[batch_idx, greenlist_ids] += self.delta
+
+            # Clamp to valid range. Indices >= actual_vocab are dropped silently;
+            # the green-list density change is negligible (a few tokens out of ~131k).
+            valid_mask = greenlist_ids < actual_vocab
+            valid_green = greenlist_ids[valid_mask].to(scores.device)
+
+            scores[batch_idx, valid_green] += self.delta
         return scores
