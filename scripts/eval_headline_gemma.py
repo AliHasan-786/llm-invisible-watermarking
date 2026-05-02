@@ -19,7 +19,7 @@ from transformers import AutoTokenizer
 
 from pipeline.generate import load_corpus
 from watermark.detector import WatermarkDetector
-from evaluation.metrics import compute_z_scores, compute_tpr_at_fpr, compute_perplexity
+from evaluation.metrics import compute_z_scores, compute_perplexity
 
 CORPUS_PATH = "results/corpus_gemma3_d2.jsonl"
 SUMMARY_PATH = "results/headline_gemma_summary.json"
@@ -58,7 +58,10 @@ print("Computing z-scores...")
 wm_z, uwm_z = compute_z_scores(corpus, detector, tokenizer)
 
 calibrated_threshold = detector.calibrate_threshold(uwm_z, target_fpr=TARGET_FPR)
-threshold, tpr_all, fpr_actual = compute_tpr_at_fpr(wm_z, uwm_z, target_fpr=TARGET_FPR)
+
+# Use the calibrated threshold as the single source of truth
+tpr_all = sum(z > calibrated_threshold for z in wm_z) / len(wm_z) if wm_z else 0.0
+fpr_actual = sum(z > calibrated_threshold for z in uwm_z) / len(uwm_z) if uwm_z else 0.0
 
 # TPR for completions >= 150 tokens
 long_wm_z = [z for item, z in zip(wm_items, wm_z) if item["n_tokens"] >= MIN_TOKENS_FOR_TPR]
