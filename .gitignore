@@ -1,5 +1,7 @@
 results/
 figures/
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -9,3 +11,4 @@ dist/
 build/
 .env
 *.npz
+.idea/
