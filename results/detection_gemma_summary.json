@@ -1,0 +1,18 @@
+{
+  "model": "google/gemma-2-9b-it",
+  "delta": 2.0,
+  "gamma": 0.5,
+  "seed": 42,
+  "n_watermarked": 201,
+  "n_unwatermarked": 201,
+  "calibrated_z_threshold": 1.7722030125208397,
+  "tpr_at_1pct_fpr_all": 0.900497512437811,
+  "tpr_at_1pct_fpr_ge150tok": 0.9872611464968153,
+  "n_long_wm": 157,
+  "actual_fpr": 0.009950248756218905,
+  "mean_ppl_wm": 28.22988484510735,
+  "median_ppl_wm": 25.192258834838867,
+  "mean_ppl_uwm": 25.78198602780774,
+  "median_ppl_uwm": 24.16912078857422,
+  "ppl_ratio_wm_over_uwm": 1.0949460919984741
+}

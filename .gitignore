@@ -1,5 +1,3 @@
-results/
-figures/
 .venv/
 venv/
 __pycache__/
@@ -10,8 +8,12 @@ __pycache__/
 dist/
 build/
 .env
-*.npz
 .idea/
+
+# Locally rendered HTML for the demo (the PDF is committed)
+demo.html
+
+# Old runner notebooks superseded by colab_llama_eval_only.ipynb
 colab_runner.ipynb
 colab_verify.ipynb
 colab_llama.ipynb

@@ -270,64 +270,34 @@ TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
 
 
     # ── Figure 6: Cross-model comparison (primary vs secondary) ──────────────
+    # Reads only the cached length_curves_*.json on each side — no tokenizer
+    # download, no HF auth needed locally.
 
-    if s_slug and os.path.exists(length_path):
-        s_summary_path = f"results/detection_{s_slug}_summary.json"
-        s_corpus_path  = f"results/corpus_{s_slug}_d2.jsonl"
+    s_length_path = f"results/length_curves_{s_slug}.json" if s_slug else None
+    if s_slug and os.path.exists(length_path) and os.path.exists(s_length_path):
+        with open(length_path)   as f: p_curve = json.load(f)
+        with open(s_length_path) as f: s_curve = json.load(f)
 
-        if os.path.exists(s_summary_path) and os.path.exists(s_corpus_path):
-            from pipeline.generate import load_corpus
-            from watermark.detector import WatermarkDetector
-            from evaluation.metrics import compute_tpr_at_fpr
-            from transformers import AutoTokenizer
+        p_n = [r["n_tokens"] for r in p_curve]; p_t = [r["tpr"] for r in p_curve]
+        s_n = [r["n_tokens"] for r in s_curve]; s_t = [r["tpr"] for r in s_curve]
 
-            with open(s_summary_path) as f:
-                s_summary = json.load(f)
-
-            print(f"Computing {s_label} length curve for fig6...")
-            s_corpus = load_corpus(s_corpus_path)
-            s_tok    = AutoTokenizer.from_pretrained(s_summary["model"])
-            if s_tok.pad_token is None:
-                s_tok.pad_token = s_tok.eos_token
-            s_det = WatermarkDetector(
-                vocab_size=len(s_tok), gamma=s_summary["gamma"], seed=s_summary["seed"]
-            )
-            s_wm  = [x for x in s_corpus if x["watermarked"]]
-            s_uwm = [x for x in s_corpus if not x["watermarked"]]
-
-            with open(length_path) as f:
-                p_curve = json.load(f)
-            length_bins = [d["n_tokens"] for d in p_curve]
-
-            s_tprs = []
-            for n_tok in length_bins:
-                wm_z  = [s_det.score_sequence(x["token_ids"][:n_tok]).z_score for x in s_wm]
-                uwm_z = [s_det.score_sequence(x["token_ids"][:n_tok]).z_score for x in s_uwm]
-                _, tpr, _ = compute_tpr_at_fpr(wm_z, uwm_z, 0.01)
-                s_tprs.append(tpr)
-
-            p_tprs = [d["tpr"] for d in p_curve]
-
-            fig, ax = plt.subplots(figsize=(4.0, 2.8))
-            ax.plot(length_bins, p_tprs, "o-",  color="#D65F5F", linewidth=1.5,
-                    markersize=4, label=p_label)
-            ax.plot(length_bins, s_tprs, "s--", color="#4878CF", linewidth=1.5,
-                    markersize=4, label=s_label)
-            ax.axhline(0.95, color="black", linestyle=":", linewidth=0.8)
-            ax.set_xlabel("Sequence length (tokens)")
-            ax.set_ylabel("TPR @ 1% FPR")
-            ax.set_ylim(0, 1.05)
-            ax.legend()
-
-            plt.tight_layout()
-            plt.savefig("figures/fig6_cross_model.pdf", bbox_inches="tight")
-            plt.close()
-            print("Saved figures/fig6_cross_model.pdf")
-        else:
-            print(f"SKIP fig6 — {s_label} results not yet available "
-                  f"(need {s_summary_path} and {s_corpus_path})")
+        fig, ax = plt.subplots(figsize=(4.0, 2.8))
+        ax.plot(p_n, p_t, "o-",  color="#D65F5F", linewidth=1.5, markersize=4, label=p_label)
+        ax.plot(s_n, s_t, "s--", color="#4878CF", linewidth=1.5, markersize=4, label=s_label)
+        ax.axhline(0.95, color="black", linestyle=":", linewidth=0.8)
+        ax.set_xlabel("Sequence length (tokens)")
+        ax.set_ylabel("TPR @ 1% FPR")
+        ax.set_ylim(0, 1.05)
+        ax.legend()
+        plt.tight_layout()
+        plt.savefig("figures/fig6_cross_model.pdf", bbox_inches="tight")
+        plt.close()
+        print("Saved figures/fig6_cross_model.pdf")
     else:
-        print("SKIP fig6 — secondary model results not available yet")
+        if s_slug:
+            print(f"SKIP fig6 — need both {length_path} and {s_length_path}")
+        else:
+            print("SKIP fig6 — no secondary model")
 
 
     # ── Summary ──────────────────────────────────────────────────────────────

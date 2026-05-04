@@ -1,0 +1,18 @@
+{
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "delta": 2.0,
+  "gamma": 0.5,
+  "seed": 42,
+  "n_watermarked": 99,
+  "n_unwatermarked": 98,
+  "calibrated_z_threshold": 2.1975317355258412,
+  "tpr_at_1pct_fpr_all": 0.9797979797979798,
+  "tpr_at_1pct_fpr_ge150tok": 0.9797979797979798,
+  "n_long_wm": 99,
+  "actual_fpr": 0.0,
+  "mean_ppl_wm": 24.350270955249517,
+  "median_ppl_wm": 23.265735626220703,
+  "mean_ppl_uwm": 24.02559083335254,
+  "median_ppl_uwm": 18.29404926300049,
+  "ppl_ratio_wm_over_uwm": 1.0135139287166355
+}

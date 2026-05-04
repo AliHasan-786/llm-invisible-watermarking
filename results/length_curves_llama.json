@@ -1,0 +1,74 @@
+[
+  {
+    "n_tokens": 25,
+    "tpr": 0.31313131313131315,
+    "fpr": 0.0,
+    "threshold": 2.4494897427831783,
+    "n_wm": 99,
+    "n_uwm": 98,
+    "calibration": "per_length"
+  },
+  {
+    "n_tokens": 50,
+    "tpr": 0.797979797979798,
+    "fpr": 0.0,
+    "threshold": 2.142857142857143,
+    "n_wm": 99,
+    "n_uwm": 98,
+    "calibration": "per_length"
+  },
+  {
+    "n_tokens": 75,
+    "tpr": 0.9191919191919192,
+    "fpr": 0.0,
+    "threshold": 2.092457497388747,
+    "n_wm": 99,
+    "n_uwm": 98,
+    "calibration": "per_length"
+  },
+  {
+    "n_tokens": 100,
+    "tpr": 0.9393939393939394,
+    "fpr": 0.0,
+    "threshold": 2.51259453814803,
+    "n_wm": 99,
+    "n_uwm": 98,
+    "calibration": "per_length"
+  },
+  {
+    "n_tokens": 125,
+    "tpr": 0.9696969696969697,
+    "fpr": 0.0,
+    "threshold": 1.975658322294524,
+    "n_wm": 99,
+    "n_uwm": 98,
+    "calibration": "per_length"
+  },
+  {
+    "n_tokens": 150,
+    "tpr": 0.9797979797979798,
+    "fpr": 0.0,
+    "threshold": 2.2119261854014094,
+    "n_wm": 99,
+    "n_uwm": 97,
+    "calibration": "per_length"
+  },
+  {
+    "n_tokens": 175,
+    "tpr": 0.9797979797979798,
+    "fpr": 0.0,
+    "threshold": 1.9710549133051487,
+    "n_wm": 99,
+    "n_uwm": 97,
+    "calibration": "per_length"
+  },
+  {
+    "n_tokens": 200,
+    "tpr": 0.9795918367346939,
+    "fpr": 0.0,
+    "threshold": 2.1975317355258412,
+    "n_wm": 98,
+    "n_uwm": 96,
+    "calibration": "per_length"
+  }
+]
