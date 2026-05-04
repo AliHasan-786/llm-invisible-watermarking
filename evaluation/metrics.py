@@ -76,8 +76,9 @@ def compute_z_scores(
     Given a corpus (list of dicts with 'token_ids' and 'watermarked'),
     return (watermarked_z_scores, unwatermarked_z_scores).
     """
+    import gc
     wm_z, uwm_z = [], []
-    for item in corpus:
+    for i, item in enumerate(corpus):
         token_ids = item["token_ids"]
         if not token_ids:
             continue
@@ -86,6 +87,9 @@ def compute_z_scores(
             wm_z.append(result.z_score)
         else:
             uwm_z.append(result.z_score)
+        if i % 50 == 0:
+            gc.collect()
+            torch.cuda.empty_cache()
     return wm_z, uwm_z
 
 
