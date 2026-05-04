@@ -12,6 +12,7 @@ import math
 from dataclasses import dataclass
 from typing import List
 
+import numpy as np
 import torch
 import scipy.stats as stats
 
@@ -41,9 +42,10 @@ class WatermarkDetector:
         self.gamma = gamma
         self.seed = seed
         self.z_threshold = z_threshold
-        self._greenlist_cache: dict[int, set] = {}
+        self._greenlist_cache: dict[int, np.ndarray] = {}
+        self._MAX_CACHE = 300  # cap at 300 entries (~75MB for 256k vocab)
 
-    def _get_greenlist_set(self, prev_token_id: int) -> set:
+    def _get_greenlist_set(self, prev_token_id: int) -> np.ndarray:
         if prev_token_id in self._greenlist_cache:
             return self._greenlist_cache[prev_token_id]
 
@@ -54,9 +56,11 @@ class WatermarkDetector:
 
         green_list_size = int(self.vocab_size * self.gamma)
         perm = torch.randperm(self.vocab_size, generator=rng)
-        greenlist = set(perm[:green_list_size].tolist())
+        greenlist = np.zeros(self.vocab_size, dtype=bool)
+        greenlist[perm[:green_list_size].numpy()] = True
 
-        self._greenlist_cache[prev_token_id] = greenlist
+        if len(self._greenlist_cache) < self._MAX_CACHE:
+            self._greenlist_cache[prev_token_id] = greenlist
         return greenlist
 
     def score_sequence(self, token_ids: List[int]) -> DetectionResult:
@@ -84,7 +88,7 @@ class WatermarkDetector:
             if prev_token >= self.vocab_size or cur_token >= self.vocab_size:
                 continue
             greenlist = self._get_greenlist_set(prev_token)
-            if cur_token in greenlist:
+            if greenlist[cur_token]:
                 green_count += 1
             total += 1
 
