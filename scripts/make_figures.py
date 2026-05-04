@@ -1,20 +1,25 @@
 """
-Phase 8: Generate all final figures as PDF.
+Generate all final figures as PDF.
 
-CVPR style: 9pt font, vector PDF, no figure titles (caption goes in LaTeX),
-bbox_inches='tight'.
+Reads results files for the primary and (optionally) secondary model and
+produces 6 figures in CVPR style (9pt font, vector PDF).
 
-Input:  results/headline_gemma_zscores.npz
-        results/length_curves_gemma.json
-        results/robustness_gemma.json
-        results/delta_sweep_gemma.json
-        results/llama_replication_summary.json  (optional)
+Usage:
+    # Default: LLaMA primary, Gemma 2 secondary
+    python scripts/make_figures.py
+
+    # Explicit models
+    python scripts/make_figures.py \
+        --primary-model meta-llama/Llama-3.1-8B-Instruct \
+        --secondary-model google/gemma-2-9b-it
+
 Output: figures/fig{1-6}.pdf  +  figures/fig1_method.txt
 """
 
 import os
 import sys
 import json
+import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -23,288 +28,318 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-os.makedirs("figures", exist_ok=True)
-matplotlib.rcParams.update({
-    "font.size": 9,
-    "axes.labelsize": 9,
-    "xtick.labelsize": 8,
-    "ytick.labelsize": 8,
-    "legend.fontsize": 8,
-    "figure.dpi": 150,
-    "pdf.fonttype": 42,
-    "ps.fonttype": 42,
-})
 
-MISSING = []  # collect missing result files
+def model_slug(model_name: str) -> str:
+    name = model_name.lower().split("/")[-1]
+    for key in ("llama", "gemma", "mistral", "falcon", "phi"):
+        if key in name:
+            return key
+    return name.split("-")[0]
 
-# ─── Figure 1: Method schematic (hand-drawn placeholder) ────────────────────
 
-FIG1_TXT = """\
+def model_label(model_name: str) -> str:
+    """Human-readable label for figure legends."""
+    name = model_name.lower()
+    if "llama-3.1-8b" in name:  return "LLaMA 3.1 8B"
+    if "llama"  in name:        return "LLaMA"
+    if "gemma-2-9b" in name:    return "Gemma 2 9B"
+    if "gemma-2-2b" in name:    return "Gemma 2 2B"
+    if "gemma"  in name:        return "Gemma"
+    if "mistral" in name:       return "Mistral 7B"
+    return model_name.split("/")[-1]
+
+
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--primary-model",   default="meta-llama/Llama-3.1-8B-Instruct")
+    p.add_argument("--secondary-model", default="google/gemma-2-9b-it",
+                   help="Set to empty string to skip cross-model figure")
+    return p.parse_args()
+
+
+def main():
+    args = parse_args()
+    p_slug = model_slug(args.primary_model)
+    p_label = model_label(args.primary_model)
+    s_slug  = model_slug(args.secondary_model) if args.secondary_model else None
+    s_label = model_label(args.secondary_model) if args.secondary_model else None
+
+    os.makedirs("figures", exist_ok=True)
+    matplotlib.rcParams.update({
+        "font.size": 9,
+        "axes.labelsize": 9,
+        "xtick.labelsize": 8,
+        "ytick.labelsize": 8,
+        "legend.fontsize": 8,
+        "figure.dpi": 150,
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+    })
+
+    MISSING = []
+
+    # ── Figure 1: Method schematic (hand-drawn placeholder) ──────────────────
+
+    FIG1_TXT = """\
 fig1_method.pdf — HAND-DRAWN IN TIKZ OR INKSCAPE
 =================================================
 
 Left panel: Watermark Injection
-  - Prompt → LLM (at each decoding step):
-      previous token id
-        → SHA-256(seed:prev_token_id) → integer → RNG seed
-        → torch.randperm(vocab_size)[:gamma*V] → green list
-        → add +delta to green-list logits
-        → softmax → sample next token
-  - Repeat until max_new_tokens reached.
-  - Output: watermarked text (indistinguishable to human reader).
+  Prompt → LLM (at each decoding step):
+    previous token id
+      → SHA-256(seed:prev_token_id) → integer → RNG seed
+      → torch.randperm(vocab_size)[:gamma*V] → green list
+      → add +delta to green-list logits
+      → softmax → sample next token
+  Repeat until max_new_tokens reached.
+  Output: watermarked text (indistinguishable to human reader).
 
 Right panel: Watermark Detection
-  - Candidate text → tokenize → token id sequence
-  - For each token i (i >= 1):
-      use token[i-1] as prev → recompute green list (same seed)
-      check if token[i] ∈ green list → count green hits
-  - z = (green_count - gamma*T) / sqrt(T*gamma*(1-gamma))
-  - One-sided z-test: z > threshold → WATERMARKED
+  Candidate text → tokenize → token id sequence
+  For each token i (i >= 1):
+    use token[i-1] as prev → recompute green list (same seed)
+    check if token[i] ∈ green list → count green hits
+  z = (green_count - gamma*T) / sqrt(T*gamma*(1-gamma))
+  One-sided z-test: z > threshold → WATERMARKED
 
-Caption idea (for LaTeX):
-  "Overview of the Kirchenbauer et al. (2023) watermarking scheme.
-   (Left) During generation, a hash of the preceding token deterministically
-   partitions the vocabulary into a green list (fraction γ) and a red list;
-   a bias δ is added to green-list logits before sampling.
-   (Right) Detection re-derives the partition and applies a z-test to count
-   the excess of green-list tokens."
+Caption (suggested for LaTeX):
+  "Overview of the Kirchenbauer et al. (2023) scheme. (Left) At each generation
+   step a hash of the preceding token deterministically partitions the vocabulary
+   into a green list (fraction γ) and a red list; bias δ is added to green-list
+   logits before sampling. (Right) Detection re-derives the partition and applies
+   a z-test to count the excess of green-list tokens."
 
-TODO: Draw this figure in TikZ (recommended) or Inkscape, export as PDF,
-      and include as \\includegraphics{figures/fig1_method.pdf} in the report.
+TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
+      then \\includegraphics{figures/fig1_method.pdf} in the report.
 """
-
-with open("figures/fig1_method.txt", "w") as f:
-    f.write(FIG1_TXT)
-print("Wrote figures/fig1_method.txt  (hand-draw this in TikZ/Inkscape)")
-
-
-# ─── Figure 2: Z-score histograms ───────────────────────────────────────────
-
-ZSCORES_PATH = "results/headline_gemma_zscores.npz"
-SUMMARY_PATH = "results/headline_gemma_summary.json"
-
-if os.path.exists(ZSCORES_PATH) and os.path.exists(SUMMARY_PATH):
-    data = np.load(ZSCORES_PATH)
-    wm_z = data["wm_z"]
-    uwm_z = data["uwm_z"]
-    with open(SUMMARY_PATH) as f:
-        summary = json.load(f)
-    threshold = summary["calibrated_z_threshold"]
-
-    fig, axes = plt.subplots(1, 2, figsize=(6.5, 2.6))
-
-    ax = axes[0]
-    bins = np.linspace(min(uwm_z.min(), wm_z.min()) - 0.5, max(uwm_z.max(), wm_z.max()) + 0.5, 45)
-    ax.hist(uwm_z, bins=bins, alpha=0.65, label="Unwatermarked", color="#4878CF", density=True)
-    ax.hist(wm_z,  bins=bins, alpha=0.65, label="Watermarked",   color="#D65F5F", density=True)
-    ax.axvline(threshold, color="black", linestyle="--", linewidth=1.0,
-               label=f"Threshold = {threshold:.2f}")
-    ax.set_xlabel("z-score")
-    ax.set_ylabel("Density")
-    ax.legend(loc="upper left")
-
-    ax2 = axes[1]
-    # TPR vs FPR (ROC)
-    from evaluation.metrics import roc_curve_data
-    fprs, tprs = roc_curve_data(list(wm_z), list(uwm_z))
-    ax2.plot(fprs, tprs, color="#D65F5F", linewidth=1.5, label="Gemma-3 4B")
-    ax2.plot([0, 1], [0, 1], "k--", linewidth=0.8, label="Random")
-    ax2.set_xlabel("False Positive Rate")
-    ax2.set_ylabel("True Positive Rate")
-    ax2.set_xlim(0, 0.25)
-    ax2.legend()
-
-    plt.tight_layout()
-    plt.savefig("figures/fig2_zscore_hist.pdf", bbox_inches="tight")
-    plt.close()
-    print("Saved figures/fig2_zscore_hist.pdf")
-else:
-    MISSING.append("fig2 — missing headline_gemma_zscores.npz or headline_gemma_summary.json")
-    print(f"SKIP fig2: {MISSING[-1]}")
+    with open("figures/fig1_method.txt", "w") as f:
+        f.write(FIG1_TXT)
+    print("Wrote figures/fig1_method.txt  (hand-draw this in TikZ/Inkscape)")
 
 
-# ─── Figure 3: TPR vs token length ──────────────────────────────────────────
+    # ── Figure 2: Z-score histograms + ROC ───────────────────────────────────
 
-LENGTH_PATH = "results/length_curves_gemma.json"
+    zscores_path = f"results/detection_{p_slug}_zscores.npz"
+    summary_path = f"results/detection_{p_slug}_summary.json"
 
-if os.path.exists(LENGTH_PATH):
-    with open(LENGTH_PATH) as f:
-        length_data = json.load(f)
+    if os.path.exists(zscores_path) and os.path.exists(summary_path):
+        data = np.load(zscores_path)
+        wm_z, uwm_z = data["wm_z"], data["uwm_z"]
+        with open(summary_path) as f:
+            summary = json.load(f)
+        threshold = summary["calibrated_z_threshold"]
 
-    n_tokens = [d["n_tokens"] for d in length_data]
-    tprs = [d["tpr"] for d in length_data]
+        fig, axes = plt.subplots(1, 2, figsize=(6.5, 2.6))
 
-    fig, ax = plt.subplots(figsize=(3.5, 2.6))
-    ax.plot(n_tokens, tprs, "o-", color="#D65F5F", linewidth=1.5, markersize=4)
-    ax.axhline(0.95, color="black", linestyle="--", linewidth=0.8, label="0.95 reference")
-    ax.set_xlabel("Sequence length (tokens)")
-    ax.set_ylabel("TPR @ 1% FPR")
-    ax.set_ylim(0, 1.05)
-    ax.legend()
+        ax = axes[0]
+        bins = np.linspace(min(uwm_z.min(), wm_z.min()) - 0.5,
+                           max(uwm_z.max(), wm_z.max()) + 0.5, 45)
+        ax.hist(uwm_z, bins=bins, alpha=0.65, label="Unwatermarked", color="#4878CF", density=True)
+        ax.hist(wm_z,  bins=bins, alpha=0.65, label="Watermarked",   color="#D65F5F", density=True)
+        ax.axvline(threshold, color="black", linestyle="--", linewidth=1.0,
+                   label=f"Threshold = {threshold:.2f}")
+        ax.set_xlabel("z-score")
+        ax.set_ylabel("Density")
+        ax.legend(loc="upper left")
 
-    plt.tight_layout()
-    plt.savefig("figures/fig3_length_curve.pdf", bbox_inches="tight")
-    plt.close()
-    print("Saved figures/fig3_length_curve.pdf")
-else:
-    MISSING.append("fig3 — missing length_curves_gemma.json")
-    print(f"SKIP fig3: {MISSING[-1]}")
+        ax2 = axes[1]
+        from evaluation.metrics import roc_curve_data
+        fprs, tprs = roc_curve_data(list(wm_z), list(uwm_z))
+        ax2.plot(fprs, tprs, color="#D65F5F", linewidth=1.5, label=p_label)
+        ax2.plot([0, 1], [0, 1], "k--", linewidth=0.8, label="Random")
+        ax2.set_xlabel("False Positive Rate")
+        ax2.set_ylabel("True Positive Rate")
+        ax2.set_xlim(0, 0.25)
+        ax2.legend()
 
-
-# ─── Figure 4: Robustness bar chart ─────────────────────────────────────────
-
-ROB_PATH = "results/robustness_gemma.json"
-
-if os.path.exists(ROB_PATH):
-    with open(ROB_PATH) as f:
-        rob_data = json.load(f)
-
-    condition_order = [
-        "baseline",
-        "word_sub_5pct",
-        "word_sub_10pct",
-        "word_sub_15pct",
-        "word_sub_20pct",
-        "token_deletion_10pct",
-        "token_insertion_10pct",
-        "llm_paraphrase",
-    ]
-    condition_labels = [
-        "Baseline",
-        "Sub 5%",
-        "Sub 10%",
-        "Sub 15%",
-        "Sub 20%",
-        "Delete 10%",
-        "Insert 10%",
-        "LLM Para.",
-    ]
-
-    tprs = []
-    labels = []
-    for cond, lbl in zip(condition_order, condition_labels):
-        if cond in rob_data:
-            tprs.append(rob_data[cond]["tpr_at_1pct_fpr"])
-            labels.append(lbl)
-
-    fig, ax = plt.subplots(figsize=(5.5, 2.8))
-    x = np.arange(len(labels))
-    bars = ax.bar(x, tprs, color="#4878CF", alpha=0.8, width=0.6)
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=30, ha="right", fontsize=7.5)
-    ax.axhline(0.95, color="black", linestyle="--", linewidth=0.8)
-    ax.set_ylabel("TPR @ 1% FPR")
-    ax.set_ylim(0, 1.05)
-
-    plt.tight_layout()
-    plt.savefig("figures/fig4_robustness.pdf", bbox_inches="tight")
-    plt.close()
-    print("Saved figures/fig4_robustness.pdf")
-else:
-    MISSING.append("fig4 — missing robustness_gemma.json")
-    print(f"SKIP fig4: {MISSING[-1]}")
+        plt.tight_layout()
+        plt.savefig("figures/fig2_zscore_hist.pdf", bbox_inches="tight")
+        plt.close()
+        print("Saved figures/fig2_zscore_hist.pdf")
+    else:
+        MISSING.append(f"fig2 — missing {zscores_path} or {summary_path}")
+        print(f"SKIP fig2: {MISSING[-1]}")
 
 
-# ─── Figure 5: Delta tradeoff (twin-axis) ───────────────────────────────────
+    # ── Figure 3: TPR vs token length ────────────────────────────────────────
 
-DELTA_PATH = "results/delta_sweep_gemma.json"
+    length_path = f"results/length_curves_{p_slug}.json"
 
-if os.path.exists(DELTA_PATH):
-    with open(DELTA_PATH) as f:
-        delta_data = json.load(f)
+    if os.path.exists(length_path):
+        with open(length_path) as f:
+            length_data = json.load(f)
 
-    deltas = [d["delta"] for d in delta_data]
-    tprs_d = [d["tpr"] for d in delta_data]
-    ppls_d = [d["mean_ppl_wm"] for d in delta_data]
+        n_tokens = [d["n_tokens"] for d in length_data]
+        tprs     = [d["tpr"]      for d in length_data]
 
-    fig, ax1 = plt.subplots(figsize=(4.0, 2.8))
-    color1, color2 = "#D65F5F", "#4878CF"
+        fig, ax = plt.subplots(figsize=(3.5, 2.6))
+        ax.plot(n_tokens, tprs, "o-", color="#D65F5F", linewidth=1.5, markersize=4)
+        ax.axhline(0.95, color="black", linestyle="--", linewidth=0.8, label="0.95 reference")
+        ax.set_xlabel("Sequence length (tokens)")
+        ax.set_ylabel("TPR @ 1% FPR")
+        ax.set_ylim(0, 1.05)
+        ax.legend()
 
-    ax1.plot(deltas, tprs_d, "o-", color=color1, linewidth=1.5, markersize=4, label="TPR")
-    ax1.set_xlabel("Logit bias δ")
-    ax1.set_ylabel("TPR @ 1% FPR", color=color1)
-    ax1.tick_params(axis="y", labelcolor=color1)
-    ax1.set_ylim(0, 1.05)
-
-    ax2 = ax1.twinx()
-    ax2.plot(deltas, ppls_d, "s--", color=color2, linewidth=1.5, markersize=4, label="Perplexity")
-    ax2.set_ylabel("Perplexity (GPT-2)", color=color2)
-    ax2.tick_params(axis="y", labelcolor=color2)
-
-    lines1, lbl1 = ax1.get_legend_handles_labels()
-    lines2, lbl2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, lbl1 + lbl2, loc="center right", fontsize=7.5)
-
-    plt.tight_layout()
-    plt.savefig("figures/fig5_delta_tradeoff.pdf", bbox_inches="tight")
-    plt.close()
-    print("Saved figures/fig5_delta_tradeoff.pdf")
-else:
-    MISSING.append("fig5 — missing delta_sweep_gemma.json")
-    print(f"SKIP fig5: {MISSING[-1]}")
+        plt.tight_layout()
+        plt.savefig("figures/fig3_length_curve.pdf", bbox_inches="tight")
+        plt.close()
+        print("Saved figures/fig3_length_curve.pdf")
+    else:
+        MISSING.append(f"fig3 — missing {length_path}")
+        print(f"SKIP fig3: {MISSING[-1]}")
 
 
-# ─── Figure 6: LLaMA comparison (optional) ──────────────────────────────────
+    # ── Figure 4: Robustness bar chart ───────────────────────────────────────
 
-LLAMA_SUMM = "results/llama_replication_summary.json"
-LLAMA_CORPUS = "results/corpus_llama_d2.jsonl"
+    rob_path = f"results/robustness_{p_slug}.json"
 
-if (os.path.exists(LLAMA_SUMM) and os.path.exists(LENGTH_PATH) and
-        os.path.exists(LLAMA_CORPUS)):
-    from pipeline.generate import load_corpus
-    from watermark.detector import WatermarkDetector
-    from evaluation.metrics import compute_tpr_at_fpr
-    from transformers import AutoTokenizer
+    if os.path.exists(rob_path):
+        with open(rob_path) as f:
+            rob_data = json.load(f)
 
-    with open(LLAMA_SUMM) as f:
-        llama_summ = json.load(f)
-    llama_threshold = llama_summ["calibrated_z_threshold"]
+        condition_order = [
+            "baseline", "word_sub_5pct", "word_sub_10pct", "word_sub_15pct",
+            "word_sub_20pct", "token_deletion_10pct", "token_insertion_10pct", "llm_paraphrase",
+        ]
+        condition_labels = [
+            "Baseline", "Sub 5%", "Sub 10%", "Sub 15%",
+            "Sub 20%", "Delete 10%", "Insert 10%", "LLM Para.",
+        ]
 
-    with open(LENGTH_PATH) as f:
-        gemma_curve = json.load(f)
+        tprs, labels = [], []
+        for cond, lbl in zip(condition_order, condition_labels):
+            if cond in rob_data:
+                tprs.append(rob_data[cond]["tpr_at_1pct_fpr"])
+                labels.append(lbl)
 
-    print("Computing LLaMA length curve for fig6...")
-    llama_corpus = load_corpus(LLAMA_CORPUS)
-    llama_tok = AutoTokenizer.from_pretrained(llama_summ["model"])
-    if llama_tok.pad_token is None:
-        llama_tok.pad_token = llama_tok.eos_token
-    llama_det = WatermarkDetector(
-        vocab_size=len(llama_tok), gamma=llama_summ["gamma"], seed=llama_summ["seed"]
-    )
-    llama_wm = [x for x in llama_corpus if x["watermarked"]]
-    llama_uwm = [x for x in llama_corpus if not x["watermarked"]]
-    length_bins = [d["n_tokens"] for d in gemma_curve]
-    llama_tprs = []
-    for n_tok in length_bins:
-        wm_z = [llama_det.score_sequence(x["token_ids"][:n_tok]).z_score for x in llama_wm]
-        uwm_z = [llama_det.score_sequence(x["token_ids"][:n_tok]).z_score for x in llama_uwm]
-        _, tpr, _ = compute_tpr_at_fpr(wm_z, uwm_z, 0.01)
-        llama_tprs.append(tpr)
+        fig, ax = plt.subplots(figsize=(5.5, 2.8))
+        x = np.arange(len(labels))
+        ax.bar(x, tprs, color="#4878CF", alpha=0.8, width=0.6)
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels, rotation=30, ha="right", fontsize=7.5)
+        ax.axhline(0.95, color="black", linestyle="--", linewidth=0.8)
+        ax.set_ylabel("TPR @ 1% FPR")
+        ax.set_ylim(0, 1.05)
 
-    gemma_tprs = [d["tpr"] for d in gemma_curve]
+        plt.tight_layout()
+        plt.savefig("figures/fig4_robustness.pdf", bbox_inches="tight")
+        plt.close()
+        print("Saved figures/fig4_robustness.pdf")
+    else:
+        MISSING.append(f"fig4 — missing {rob_path}")
+        print(f"SKIP fig4: {MISSING[-1]}")
 
-    fig, ax = plt.subplots(figsize=(4.0, 2.8))
-    ax.plot(length_bins, gemma_tprs, "o-", color="#D65F5F", linewidth=1.5, markersize=4, label="Gemma-3 4B")
-    ax.plot(length_bins, llama_tprs, "s--", color="#4878CF", linewidth=1.5, markersize=4, label="LLaMA-3.1 8B")
-    ax.axhline(0.95, color="black", linestyle=":", linewidth=0.8)
-    ax.set_xlabel("Sequence length (tokens)")
-    ax.set_ylabel("TPR @ 1% FPR")
-    ax.set_ylim(0, 1.05)
-    ax.legend()
 
-    plt.tight_layout()
-    plt.savefig("figures/fig6_llama_compare.pdf", bbox_inches="tight")
-    plt.close()
-    print("Saved figures/fig6_llama_compare.pdf")
-else:
-    print("SKIP fig6 — LLaMA replication results not yet available (Phase 7 not run).")
+    # ── Figure 5: Delta tradeoff (twin-axis) ─────────────────────────────────
 
-# ─── Summary ────────────────────────────────────────────────────────────────
+    delta_path = f"results/delta_sweep_{p_slug}.json"
 
-print("\n" + "=" * 50)
-if MISSING:
-    print("MISSING (run corresponding experiment first):")
-    for m in MISSING:
-        print(f"  - {m}")
-else:
-    print("All figures generated successfully.")
+    if os.path.exists(delta_path):
+        with open(delta_path) as f:
+            delta_data = json.load(f)
+
+        deltas  = [d["delta"]       for d in delta_data]
+        tprs_d  = [d["tpr"]         for d in delta_data]
+        ppls_d  = [d["mean_ppl_wm"] for d in delta_data]
+
+        fig, ax1 = plt.subplots(figsize=(4.0, 2.8))
+        color1, color2 = "#D65F5F", "#4878CF"
+
+        ax1.plot(deltas, tprs_d, "o-",  color=color1, linewidth=1.5, markersize=4, label="TPR")
+        ax1.set_xlabel("Logit bias δ")
+        ax1.set_ylabel("TPR @ 1% FPR", color=color1)
+        ax1.tick_params(axis="y", labelcolor=color1)
+        ax1.set_ylim(0, 1.05)
+
+        ax2 = ax1.twinx()
+        ax2.plot(deltas, ppls_d, "s--", color=color2, linewidth=1.5, markersize=4, label="Perplexity")
+        ax2.set_ylabel("Perplexity (GPT-2)", color=color2)
+        ax2.tick_params(axis="y", labelcolor=color2)
+
+        lines1, lbl1 = ax1.get_legend_handles_labels()
+        lines2, lbl2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines1 + lines2, lbl1 + lbl2, loc="center right", fontsize=7.5)
+
+        plt.tight_layout()
+        plt.savefig("figures/fig5_delta_tradeoff.pdf", bbox_inches="tight")
+        plt.close()
+        print("Saved figures/fig5_delta_tradeoff.pdf")
+    else:
+        MISSING.append(f"fig5 — missing {delta_path}")
+        print(f"SKIP fig5: {MISSING[-1]}")
+
+
+    # ── Figure 6: Cross-model comparison (primary vs secondary) ──────────────
+
+    if s_slug and os.path.exists(length_path):
+        s_summary_path = f"results/detection_{s_slug}_summary.json"
+        s_corpus_path  = f"results/corpus_{s_slug}_d2.jsonl"
+
+        if os.path.exists(s_summary_path) and os.path.exists(s_corpus_path):
+            from pipeline.generate import load_corpus
+            from watermark.detector import WatermarkDetector
+            from evaluation.metrics import compute_tpr_at_fpr
+            from transformers import AutoTokenizer
+
+            with open(s_summary_path) as f:
+                s_summary = json.load(f)
+
+            print(f"Computing {s_label} length curve for fig6...")
+            s_corpus = load_corpus(s_corpus_path)
+            s_tok    = AutoTokenizer.from_pretrained(s_summary["model"])
+            if s_tok.pad_token is None:
+                s_tok.pad_token = s_tok.eos_token
+            s_det = WatermarkDetector(
+                vocab_size=len(s_tok), gamma=s_summary["gamma"], seed=s_summary["seed"]
+            )
+            s_wm  = [x for x in s_corpus if x["watermarked"]]
+            s_uwm = [x for x in s_corpus if not x["watermarked"]]
+
+            with open(length_path) as f:
+                p_curve = json.load(f)
+            length_bins = [d["n_tokens"] for d in p_curve]
+
+            s_tprs = []
+            for n_tok in length_bins:
+                wm_z  = [s_det.score_sequence(x["token_ids"][:n_tok]).z_score for x in s_wm]
+                uwm_z = [s_det.score_sequence(x["token_ids"][:n_tok]).z_score for x in s_uwm]
+                _, tpr, _ = compute_tpr_at_fpr(wm_z, uwm_z, 0.01)
+                s_tprs.append(tpr)
+
+            p_tprs = [d["tpr"] for d in p_curve]
+
+            fig, ax = plt.subplots(figsize=(4.0, 2.8))
+            ax.plot(length_bins, p_tprs, "o-",  color="#D65F5F", linewidth=1.5,
+                    markersize=4, label=p_label)
+            ax.plot(length_bins, s_tprs, "s--", color="#4878CF", linewidth=1.5,
+                    markersize=4, label=s_label)
+            ax.axhline(0.95, color="black", linestyle=":", linewidth=0.8)
+            ax.set_xlabel("Sequence length (tokens)")
+            ax.set_ylabel("TPR @ 1% FPR")
+            ax.set_ylim(0, 1.05)
+            ax.legend()
+
+            plt.tight_layout()
+            plt.savefig("figures/fig6_cross_model.pdf", bbox_inches="tight")
+            plt.close()
+            print("Saved figures/fig6_cross_model.pdf")
+        else:
+            print(f"SKIP fig6 — {s_label} results not yet available "
+                  f"(need {s_summary_path} and {s_corpus_path})")
+    else:
+        print("SKIP fig6 — secondary model results not available yet")
+
+
+    # ── Summary ──────────────────────────────────────────────────────────────
+
+    print("\n" + "=" * 50)
+    if MISSING:
+        print("MISSING (run corresponding experiment first):")
+        for m in MISSING:
+            print(f"  - {m}")
+    else:
+        print("All figures generated successfully.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,5 +1,7 @@
 results/
 figures/
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -9,3 +11,9 @@ dist/
 build/
 .env
 *.npz
+.idea/
+colab_runner.ipynb
+colab_verify.ipynb
+colab_llama.ipynb
+colab_gemma.ipynb
+colab_combined.ipynb
