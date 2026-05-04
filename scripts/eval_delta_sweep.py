@@ -60,6 +60,8 @@ def parse_args():
     p.add_argument("--gamma", type=float, default=0.5)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--target-fpr", type=float, default=0.01)
+    p.add_argument("--load-in-4bit", action="store_true",
+                   help="4-bit quantization for GPUs with <16GB VRAM (e.g. RTX 4070 Ti)")
     return p.parse_args()
 
 
@@ -204,11 +206,23 @@ def main():
     # ── Pass 1: generation (LLM loaded once) ─────────────────────────────────
     print(f"\n=== PASS 1: Generation ===")
     print(f"Loading {args.model}...")
-    llm = AutoModelForCausalLM.from_pretrained(
-        args.model,
-        torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-        device_map="auto",
-    )
+    if args.load_in_4bit:
+        from transformers import BitsAndBytesConfig
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+        llm = AutoModelForCausalLM.from_pretrained(
+            args.model,
+            quantization_config=bnb_config,
+            device_map="auto",
+        )
+    else:
+        llm = AutoModelForCausalLM.from_pretrained(
+            args.model,
+            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+            device_map="auto",
+        )
     llm.eval()
 
     corpus_paths = {}

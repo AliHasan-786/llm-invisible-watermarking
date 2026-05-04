@@ -56,6 +56,7 @@ class CorpusGenerator:
         seed: int = 42,
         max_new_tokens: int = 200,
         device: Optional[str] = None,
+        load_in_4bit: bool = False,
     ):
         self.model_name = model_name
         self.delta = delta
@@ -69,11 +70,23 @@ class CorpusGenerator:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-            device_map="auto",
-        )
+        if load_in_4bit:
+            from transformers import BitsAndBytesConfig
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+            )
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                quantization_config=bnb_config,
+                device_map="auto",
+            )
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+                device_map="auto",
+            )
         self.model.eval()
 
         self.watermark_processor = WatermarkLogitsProcessor(

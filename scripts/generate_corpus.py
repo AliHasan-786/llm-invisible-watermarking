@@ -54,6 +54,8 @@ def parse_args():
     p.add_argument("--max-new-tokens", type=int, default=200)
     p.add_argument("--output", default=None,
                    help="Output JSONL path. Auto-derived from model + delta if omitted.")
+    p.add_argument("--load-in-4bit", action="store_true",
+                   help="4-bit quantization for GPUs with <16GB VRAM (e.g. RTX 4070 Ti)")
     return p.parse_args()
 
 
@@ -78,6 +80,7 @@ def main():
         gamma=args.gamma,
         seed=args.seed,
         max_new_tokens=args.max_new_tokens,
+        load_in_4bit=args.load_in_4bit,
     )
     gen.generate_corpus(
         n_per_dataset=args.n_per_dataset,
