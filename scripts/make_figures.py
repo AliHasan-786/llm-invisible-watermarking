@@ -240,7 +240,7 @@ TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
 
         deltas  = [d["delta"]       for d in delta_data]
         tprs_d  = [d["tpr"]         for d in delta_data]
-        ppls_d  = [d["mean_ppl_wm"] for d in delta_data]
+        ratios_d = [d["ppl_ratio"]  for d in delta_data]
 
         fig, ax1 = plt.subplots(figsize=(4.0, 2.8))
         color1, color2 = "#D65F5F", "#4878CF"
@@ -252,8 +252,8 @@ TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
         ax1.set_ylim(0, 1.05)
 
         ax2 = ax1.twinx()
-        ax2.plot(deltas, ppls_d, "s--", color=color2, linewidth=1.5, markersize=4, label="Perplexity")
-        ax2.set_ylabel("Perplexity (GPT-2)", color=color2)
+        ax2.plot(deltas, ratios_d, "s--", color=color2, linewidth=1.5, markersize=4, label="PPL ratio (wm/uwm)")
+        ax2.set_ylabel("PPL ratio (wm / uwm)", color=color2)
         ax2.tick_params(axis="y", labelcolor=color2)
 
         lines1, lbl1 = ax1.get_legend_handles_labels()
