@@ -57,6 +57,8 @@ def parse_args():
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--with-paraphrase", action="store_true",
                    help="Include LLM paraphrase attack (loads the full model, slow)")
+    p.add_argument("--load-in-4bit", action="store_true",
+                   help="4-bit quantization for the paraphraser (required on free Colab T4)")
     return p.parse_args()
 
 
@@ -97,11 +99,23 @@ def main():
     paraphraser_model = None
     if args.with_paraphrase:
         print(f"Loading {args.model} as paraphraser (this loads the full model)...")
-        paraphraser_model = AutoModelForCausalLM.from_pretrained(
-            args.model,
-            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            device_map="auto",
-        )
+        if args.load_in_4bit:
+            from transformers import BitsAndBytesConfig
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+            )
+            paraphraser_model = AutoModelForCausalLM.from_pretrained(
+                args.model,
+                quantization_config=bnb_config,
+                device_map="auto",
+            )
+        else:
+            paraphraser_model = AutoModelForCausalLM.from_pretrained(
+                args.model,
+                torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+                device_map="auto",
+            )
         paraphraser_model.eval()
 
     print("Running robustness evaluation...")
