@@ -97,7 +97,7 @@ Figure~\ref{fig:method} summarises the two-sided pipeline. Generation is a singl
 \label{sec:experiments}
 
 \subsection{Models and data}
-We run the primary headline experiments on \textbf{Gemma 2 9B Instruct}~\cite{gemma2report} and verify cross-architecture generalisation on \textbf{LLaMA~3.1 8B Instruct}~\cite{llama3report}. Both models are 7--9B parameter instruction-tuned decoders with distinct tokenisers and pre-training data, and neither was benchmarked in the original Kirchenbauer paper. The original proposal targeted Gemma~3 4B; we substituted Gemma~2 9B because the public HuggingFace \texttt{transformers} loader treats Gemma~3 as a multimodal vision/language class (\texttt{Gemma3ForConditionalGeneration}) for which text-only generation produces NaN logits and crashes the sampler. Once the watermark code was confirmed working on Gemma~2 and LLaMA, the failure was isolated to the loader rather than our pipeline. We declined to spend further GPU time on the workaround. The full diagnosis is in \S\ref{sec:gemma-failure}.
+We run the primary headline experiments on \textbf{Gemma 2 9B Instruct}~\cite{gemma2report} and verify cross-architecture generalisation on \textbf{LLaMA~3.1 8B Instruct}~\cite{llama3report}. Both models are 7--9B parameter instruction-tuned decoders with distinct tokenisers and pre-training data, and neither was benchmarked in the original Kirchenbauer paper. The original proposal targeted Gemma~3 4B; we substituted Gemma~2 9B because the public HuggingFace \texttt{transformers} loader treats Gemma~3 as a multimodal vision/language class (\texttt{Gemma3ForConditionalGeneration}) for which text-only generation produces NaN logits and crashes the sampler. Once the watermark code was confirmed working on Gemma~2 and LLaMA, the failure was isolated to the loader rather than our pipeline, and we declined to spend further GPU time on the workaround.
 
 The corpus follows the proposal: roughly 150 prompts from each of three datasets, namely CNN/DailyMail summarisation~\cite{cnndailymail}, WritingPrompts open-ended generation~\cite{fan2018hierarchical}, and TriviaQA question-answering~\cite{joshi2017triviaqa}. This yields 201 paired (watermarked, control) generations per model at $\delta{=}2$, $\gamma{=}0.5$, with $\max\_\text{new\_tokens}{=}200$, temperature $1.0$, top-$p$ $0.95$, and shared secret seed $42$.
 
@@ -167,9 +167,6 @@ The same code path, with only the model identifier changed, was applied to LLaMA
 \label{fig:cross}
 \end{figure}
 
-\subsection{Failure analysis: Gemma 3 multimodal loader}
-\label{sec:gemma-failure}
-Our proposal targeted Gemma~3 4B, but the public HuggingFace \texttt{transformers} loader (4.45+) instantiates Gemma~3 as \texttt{Gemma3ForConditionalGeneration}, a vision/language class that expects paired image inputs and emits NaN logits during text-only generation. We confirmed the NaN appears \emph{before} the logit processor is called and the same code path runs cleanly on Gemma~2 and LLaMA, so the failure is upstream of our watermark. We substituted Gemma~2 9B, whose text-only loader runs without modification.
 
 %-----------------------------------------------------------------------
 \section{Conclusion}
