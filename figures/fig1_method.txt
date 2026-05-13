@@ -1,4 +1,4 @@
-fig1_method.pdf — HAND-DRAWN IN TIKZ OR INKSCAPE
+fig1_method.pdf - HAND-DRAWN IN TIKZ OR INKSCAPE
 =================================================
 
 Left panel: Watermark Injection

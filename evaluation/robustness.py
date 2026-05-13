@@ -90,7 +90,7 @@ def apply_llm_paraphrase(
     batch_size: int = 4,
 ) -> List[str]:
     """
-    Paraphrase texts using an LLM. Critically, no LogitsProcessor is applied —
+    Paraphrase texts using an LLM. no LogitsProcessor is applied -
     the paraphraser must NOT re-embed the watermark.
 
     Args:
@@ -213,7 +213,7 @@ def evaluate_robustness(
 
 if __name__ == "__main__":
     # Sanity check: paraphrase two short strings and print side by side.
-    # Requires a model to be loaded — uses a tiny local model for quick verification.
+    # Requires a model to be loaded - uses a tiny local model for quick verification.
     import sys
     from transformers import AutoTokenizer, AutoModelForCausalLM
 

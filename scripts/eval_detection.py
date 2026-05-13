@@ -107,7 +107,7 @@ def main():
     print(f"  Actual FPR:                          {fpr_actual:.2%}")
 
     if tpr_long < 0.90:
-        print("  WARNING: TPR < 0.90 — verify watermark seed matches between processor and detector.")
+        print("  WARNING: TPR < 0.90 - verify watermark seed matches between processor and detector.")
 
     print("\nScoring text quality with GPT-2...")
     wm_ppl  = compute_perplexity([x["completion"] for x in wm_items],  device=device)

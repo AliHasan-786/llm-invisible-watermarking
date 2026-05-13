@@ -5,10 +5,10 @@ Reads the calibrated threshold from the detection summary (run eval_detection.py
 then tests whether the watermark survives adversarial post-processing.
 
 Usage:
-    # Basic (no LLM paraphrase — fast)
+    # Basic (no LLM paraphrase - fast)
     python scripts/eval_robustness.py
 
-    # With LLM paraphrase attack (loads the model — ~60 min extra)
+    # With LLM paraphrase attack (loads the model - ~60 min extra)
     python scripts/eval_robustness.py --with-paraphrase
 
     # Gemma 2 secondary (basic only)

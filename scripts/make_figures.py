@@ -81,7 +81,7 @@ def main():
     # ── Figure 1: Method schematic (hand-drawn placeholder) ──────────────────
 
     FIG1_TXT = """\
-fig1_method.pdf — HAND-DRAWN IN TIKZ OR INKSCAPE
+fig1_method.pdf - HAND-DRAWN IN TIKZ OR INKSCAPE
 =================================================
 
 Left panel: Watermark Injection
@@ -157,7 +157,7 @@ TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
         plt.close()
         print("Saved figures/fig2_zscore_hist.pdf")
     else:
-        MISSING.append(f"fig2 — missing {zscores_path} or {summary_path}")
+        MISSING.append(f"fig2 - missing {zscores_path} or {summary_path}")
         print(f"SKIP fig2: {MISSING[-1]}")
 
 
@@ -185,7 +185,7 @@ TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
         plt.close()
         print("Saved figures/fig3_length_curve.pdf")
     else:
-        MISSING.append(f"fig3 — missing {length_path}")
+        MISSING.append(f"fig3 - missing {length_path}")
         print(f"SKIP fig3: {MISSING[-1]}")
 
 
@@ -226,7 +226,7 @@ TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
         plt.close()
         print("Saved figures/fig4_robustness.pdf")
     else:
-        MISSING.append(f"fig4 — missing {rob_path}")
+        MISSING.append(f"fig4 - missing {rob_path}")
         print(f"SKIP fig4: {MISSING[-1]}")
 
 
@@ -265,12 +265,12 @@ TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
         plt.close()
         print("Saved figures/fig5_delta_tradeoff.pdf")
     else:
-        MISSING.append(f"fig5 — missing {delta_path}")
+        MISSING.append(f"fig5 - missing {delta_path}")
         print(f"SKIP fig5: {MISSING[-1]}")
 
 
     # ── Figure 6: Cross-model comparison (primary vs secondary) ──────────────
-    # Reads only the cached length_curves_*.json on each side — no tokenizer
+    # Reads only the cached length_curves_*.json on each side - no tokenizer
     # download, no HF auth needed locally.
 
     s_length_path = f"results/length_curves_{s_slug}.json" if s_slug else None
@@ -295,9 +295,9 @@ TODO: Draw in TikZ (recommended) or Inkscape, export as PDF,
         print("Saved figures/fig6_cross_model.pdf")
     else:
         if s_slug:
-            print(f"SKIP fig6 — need both {length_path} and {s_length_path}")
+            print(f"SKIP fig6 - need both {length_path} and {s_length_path}")
         else:
-            print("SKIP fig6 — no secondary model")
+            print("SKIP fig6 - no secondary model")
 
 
     # ── Summary ──────────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@ Length-stratified detectability curves.
 Truncates every sequence to token count N, re-calibrates the detection threshold
 at each length bin, and records TPR. TPR should rise monotonically with length.
 
-No generation required — pure post-hoc analysis of an existing corpus.
+No generation required - pure post-hoc analysis of an existing corpus.
 
 Usage:
     python scripts/eval_length.py

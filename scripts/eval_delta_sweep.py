@@ -6,8 +6,8 @@ prompts drawn from the headline corpus, then scores TPR and GPT-2 perplexity.
 The d=2.0 corpus is reused from generate_corpus.py (not regenerated).
 
 Two-pass design to avoid GPU OOM on T4:
-  Pass 1 — load the LLM once, generate all delta corpora, then release.
-  Pass 2 — load GPT-2 once, score perplexity for all deltas.
+  Pass 1 - load the LLM once, generate all delta corpora, then release.
+  Pass 2 - load GPT-2 once, score perplexity for all deltas.
 
 Usage:
     python scripts/eval_delta_sweep.py
@@ -194,7 +194,7 @@ def main():
     vocab_size = len(tokenizer)
 
     # Calibrate threshold once from the d=2.0 unwatermarked z-scores
-    # (unwatermarked distribution is independent of delta — safe to reuse)
+    # (unwatermarked distribution is independent of delta - safe to reuse)
     print("Calibrating threshold from d=2.0 corpus...")
     det_ref  = WatermarkDetector(vocab_size=vocab_size, gamma=args.gamma, seed=args.seed)
     _, uwm_z = compute_z_scores(headline, det_ref, tokenizer)

@@ -10,7 +10,7 @@ Today is **2026-05-04**. Project is due **2026-05-12**. Both Gemma 2 9B and LLaM
 |---|---|---|
 | 4-page CVPR-style report (LaTeX) | `docs/main.tex` + `docs/references.bib` | Real Gemma + LLaMA numbers in every section, including §3.7 cross-architecture with Fig. 6 |
 | TikZ Figure 1 (method schematic) | embedded inline in `main.tex` | ready |
-| Figures 2–5 (Gemma headline plots) | `figures/fig{2..5}*.pdf` | ready |
+| Figures 2-5 (Gemma headline plots) | `figures/fig{2..5}*.pdf` | ready |
 | Figure 6 (cross-family TPR vs length) | `figures/fig6_cross_model.pdf` | ready (built from cached length curves; no HF auth needed locally) |
 | Figure-1 PNG variant for slides | `figures/fig1_method.png` | ready |
 | 4-page demo notebook (with executed outputs) | `demo.ipynb` | ready, summary mentions both models |
@@ -129,7 +129,7 @@ Expected:
 - `demo.pdf` = **4 pages** (course limit)
 - `report.pdf` = ~5 pages (4 body + ~1 references; course limit is 4 pages excluding refs)
 - `submission.pdf` = report + demo combined, ~9 pages
-- 6 figures (`fig2`–`fig6`) in `figures/`
+- 6 figures (`fig2`-`fig6`) in `figures/`
 - Both Gemma and LLaMA JSON summaries present
 
 If `report.pdf` is more than 4 body pages, ping me with which subsection overflowed and I'll trim it.

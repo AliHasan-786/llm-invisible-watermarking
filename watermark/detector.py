@@ -83,7 +83,7 @@ class WatermarkDetector:
         for i in range(1, len(token_ids)):
             prev_token = token_ids[i - 1]
             cur_token = token_ids[i]
-            # Skip tokens outside the (tokenizer) vocab — consistent with processor's clamp.
+            # Skip tokens outside the (tokenizer) vocab - consistent with processor's clamp.
             # In practice the model never emits such tokens, but guard defensively.
             if prev_token >= self.vocab_size or cur_token >= self.vocab_size:
                 continue
