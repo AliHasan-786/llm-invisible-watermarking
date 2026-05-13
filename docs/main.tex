@@ -23,8 +23,7 @@
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{hyperref}
-\usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,calc,backgrounds}
+\usepackage{microtype}
 
 \cvprfinalcopy
 \setcounter{page}{1}
@@ -88,44 +87,7 @@ Figure~\ref{fig:method} summarises the two-sided pipeline. Generation is a singl
 
 \begin{figure*}[t]
 \centering
-\scriptsize
-\begin{tikzpicture}[
-    node distance=4mm,
-    every node/.style={font=\scriptsize},
-    boxA/.style={draw,rounded corners=1pt,fill=blue!8,minimum height=6mm,minimum width=18mm,align=center,inner sep=2pt},
-    boxB/.style={draw,rounded corners=1pt,fill=red!8,minimum height=6mm,minimum width=18mm,align=center,inner sep=2pt},
-    boxH/.style={draw,rounded corners=1pt,fill=gray!10,minimum height=6mm,minimum width=22mm,align=center,inner sep=2pt},
-    arr/.style={-{Latex[length=1.4mm]},thick},
-]
-% TOP panel: injection
-\node[boxA] (prompt)  {Prompt $w_{1{:}n}$};
-\node[boxA,right=10mm of prompt] (llm) {LLM $\to$ logits $\ell_t$};
-\node[boxH,below=5mm of llm] (hash)   {SHA-256$(s\Vert w_{t-1})$};
-\node[boxH,below=4mm of hash] (perm)  {permute $\to$ green list $G_t$};
-\node[boxA,right=10mm of llm] (bias)  {$\tilde\ell_t = \ell_t + \delta\cdot\mathbf{1}[v\in G_t]$};
-\node[boxA,right=8mm of bias]  (sample){softmax $\to$ sample $w_t$};
-\node[above=2mm of llm,font=\bfseries\small] (titleL) {Watermark Injection};
-
-\draw[arr] (prompt) -- (llm);
-\draw[arr] (llm)    -- (bias);
-\draw[arr] (bias)   -- (sample);
-\draw[arr] (llm.south) -- (hash.north);
-\draw[arr] (hash) -- (perm);
-\draw[arr] (perm.east) -| (bias.south);
-\draw[arr,dashed] (sample.south) -- ++(0,-3mm) -| node[pos=0.25,font=\tiny\itshape,above]{$w_{t-1}$ feeds next step} (llm.south east);
-
-% BOTTOM panel: detection
-\node[boxB,below=22mm of perm,xshift=-3mm] (text)  {Candidate text};
-\node[boxB,right=10mm of text] (tok)              {tokenize};
-\node[boxH,right=10mm of tok]  (rederive)         {re-derive $G_t$ from $w_{t-1}$};
-\node[boxB,right=10mm of rederive] (count)        {count $X{=}\sum\mathbf{1}[w_t\!\in\!G_t]$};
-\node[boxB,right=8mm of count] (ztest)            {$z=\tfrac{X-\gamma T}{\sqrt{T\gamma(1-\gamma)}}$};
-\node[above=2mm of tok,font=\bfseries\small] (titleR) {Watermark Detection};
-\draw[arr] (text)     -- (tok);
-\draw[arr] (tok)      -- (rederive);
-\draw[arr] (rederive) -- (count);
-\draw[arr] (count)    -- (ztest);
-\end{tikzpicture}
+\includegraphics[width=\linewidth]{figures/fig1_method.png}
 \caption{Two-sided pipeline of the green-list logit-bias watermark. \textbf{Top:} at each decoding step the previous token seeds a SHA-256 hash that deterministically partitions the vocabulary; a fixed bias $\delta$ is added to green-list logits before softmax sampling. \textbf{Bottom:} detection re-derives the same partition from the candidate text and applies a one-sided $z$-test on the count of green tokens. Detection requires only the secret seed and the text, not access to the model.}
 \label{fig:method}
 \end{figure*}
@@ -207,7 +169,7 @@ The same code path, with only the model identifier changed, was applied to LLaMA
 
 \subsection{Failure analysis: Gemma 3 multimodal loader}
 \label{sec:gemma-failure}
-Our proposal targeted Gemma~3 4B as the second model. In the current public HuggingFace \texttt{transformers} (4.45+), Gemma~3 is loaded as \texttt{Gemma3ForConditionalGeneration}, a vision/language class that expects image inputs. Text-only generation produces NaN logits at the first token, which propagate into a CUDA assert from \texttt{torch.multinomial}. We isolated the failure in three steps: (i)~confirmed that exactly the same code path runs cleanly on Gemma~2 and LLaMA, ruling out a watermark bug; (ii)~verified that the NaN appears \emph{before} the logit processor is called, ruling out the green-list cap; (iii)~traced it to the multimodal loader's expectation of paired image inputs. Resolving this would have required either downgrading \texttt{transformers} to a pre-multimodal release with uncertain compatibility, or constructing dummy image tensors. Both options fall outside the scope of this paper. We substituted Gemma~2 9B (a text-only loader, distinct from LLaMA's tokeniser) and documented the failure here so that future replicators can avoid the same dead end. This is a load-time tooling issue, not a watermark issue.
+Our proposal targeted Gemma~3 4B, but the public HuggingFace \texttt{transformers} loader (4.45+) instantiates Gemma~3 as \texttt{Gemma3ForConditionalGeneration}, a vision/language class that expects paired image inputs and emits NaN logits during text-only generation. We confirmed the NaN appears \emph{before} the logit processor is called and the same code path runs cleanly on Gemma~2 and LLaMA, so the failure is upstream of our watermark. We substituted Gemma~2 9B, whose text-only loader runs without modification.
 
 %-----------------------------------------------------------------------
 \section{Conclusion}
