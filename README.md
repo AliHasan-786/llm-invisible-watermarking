@@ -23,6 +23,14 @@ make check
 
 `make check` runs detector-math tests, verifies every cached artifact against its SHA-256 digest, validates corpus metadata, and recomputes headline detection and robustness statistics from cached z-score arrays. It downloads no models.
 
+The CI workflow is staged at `docs/ci/quality.yml` because the repository token may not have GitHub Actions workflow scope. Activate it from an appropriately scoped session with:
+
+```bash
+mkdir -p .github/workflows
+cp docs/ci/quality.yml .github/workflows/quality.yml
+git add .github/workflows/quality.yml
+```
+
 Preserved results from the original Kirchenbauer-style implementation:
 
 | Generation model | Watermarked / control | TPR at 1% FPR | Perplexity ratio |
@@ -53,6 +61,7 @@ scripts/reproduce_baseline.py
                             Offline cache verifier and table reproduction
 results/baseline/           Preserved, hashed coursework artifacts
 tests/                      Detector-math tests
+docs/ci/quality.yml         Staged GitHub Actions workflow
 PREREGISTRATION.md          Frozen protocol awaiting approval
 DATA_PROVENANCE.md          Dataset and cache lineage
 EXPLAINER.md                Architecture and interview preparation for Ali

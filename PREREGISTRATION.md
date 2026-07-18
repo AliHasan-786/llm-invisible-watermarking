@@ -46,12 +46,12 @@ The 80% reference point is an evaluation convention chosen before results, not a
 
 Run order:
 
-1. `google/gemma-2-9b-it`
-2. `meta-llama/Llama-3.1-8B-Instruct`
+1. `google/gemma-2-9b-it` at revision `11c9b309abf73637e4b6f9a3fa1e92e615547819`
+2. `meta-llama/Llama-3.1-8B-Instruct` at revision `0e9e39f249a16976918f6564b8830bc894c89659`
 
-Before the first generation, the run configuration must record each exact model revision and tokenizer revision. A model substitution is a protocol deviation and requires a new decision brief before running.
+The run configuration must record these exact model and tokenizer revisions. Both repositories currently require manually approved Hugging Face access; entering or rotating credentials remains Ali's personal gate. A model substitution is a protocol deviation and requires a new decision brief before running.
 
-Pinned environment: `requirements.txt`. SynthID generation uses `transformers==4.57.6` and `SynthIDTextWatermarkingConfig` with the documented nine keys `[654, 400, 836, 123, 340, 443, 597, 160, 57]`, `ngram_len=5`, `sampling_table_seed=0`, `sampling_table_size=65536`, and `context_history_size=1024`. The primary SynthID score is the untrained weighted-mean detector from the official `google-deepmind/synthid-text` reference implementation, with thresholds calibrated empirically by length. A Bayesian-detector result may be exploratory only unless its training set and weights are separately preregistered before use.
+Pinned environment: `requirements.txt`. SynthID generation uses `transformers==4.57.6` and `SynthIDTextWatermarkingConfig` with the documented nine keys `[654, 400, 836, 123, 340, 443, 597, 160, 57]`, `ngram_len=5`, `sampling_table_seed=0`, `sampling_table_size=65536`, and `context_history_size=1024`. The primary SynthID score is the untrained weighted-mean detector from the official `google-deepmind/synthid-text` reference implementation at commit `addb4a158143c7c6851a1308f78b89fceed59683`, with thresholds calibrated empirically by length. A Bayesian-detector result may be exploratory only unless its training set and weights are separately preregistered before use.
 
 Kirchenbauer configuration: `gamma=0.5`, `delta=2.0`, key seed 42. This preserves the course baseline.
 
@@ -82,8 +82,8 @@ Every attack is applied to the same clean held-out generations. Randomized attac
 
 Paraphrasers:
 
-- `Qwen/Qwen2.5-7B-Instruct`
-- `mistralai/Mistral-7B-Instruct-v0.3`
+- `Qwen/Qwen2.5-7B-Instruct` at revision `a09a35458c702b33eeacc393d103063234e8bc28`
+- `mistralai/Mistral-7B-Instruct-v0.3` at revision `c170c708c41dac9275d15a8fff4eca08d52bab71`
 
 Prompt: "Rewrite the passage in different words while preserving its meaning and level of detail. Return only the rewrite." Decode with temperature 0.8, top-p 0.95, maximum output length equal to the source completion's token count capped at 250.
 
@@ -97,7 +97,7 @@ The second pass receives only the first rewrite. No watermark processor is activ
 
 ### 6.2 Back-translation
 
-Use `facebook/nllb-200-distilled-600M` with pivots French (`fra_Latn`) and German (`deu_Latn`), translating English→pivot→English. Decode deterministically with beam size 4. Record translation failures without replacement.
+Use `facebook/nllb-200-distilled-600M` at revision `f8d333a098d19b4fd9a8b18f94170487ad3f821d` with pivots French (`fra_Latn`) and German (`deu_Latn`), translating English→pivot→English. Decode deterministically with beam size 4. Record translation failures without replacement.
 
 ### 6.3 Token/word edits
 
