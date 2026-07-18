@@ -62,9 +62,21 @@ Complete in P0:
 - data/provenance card;
 - current gate brief.
 
-Not complete:
+Implemented in P1 before compute:
 
-- SynthID integration;
+- exact source-stratified hash split and SHA-256-derived per-output seeds;
+- three distinct calibration controls per calibration prompt;
+- matched held-out control, Kirchenbauer, and SynthID generation plan;
+- pinned Transformers SynthID generation adapter;
+- official untrained weighted-mean scoring rule with repeated-context and EOS masking;
+- immutable run manifests, resumable output keys, and failure ledger;
+- 1% empirical threshold calibration with strict ties-count-as-missed behavior;
+- prompt-clustered bootstrap interval for realized calibration FPR;
+- held-out clean TPR/FPR intervals and a quarantined 20-prompt pilot runner.
+
+Still not complete:
+
+- a SynthID generation or score result;
 - any new attack run;
 - reproduction of the 27.3% paraphrase result;
 - Article 50 report;
@@ -72,6 +84,19 @@ Not complete:
 - deployment.
 
 Do not describe this as a completed SynthID evaluation until those artifacts exist.
+
+## Why the calibration amendment helps
+
+The original design had roughly 225 calibration controls per target model. At
+1% empirical FPR, only two scores occupy the relevant upper tail, so a single
+unusual completion can move the threshold materially. Three deterministic
+control completions for each calibration prompt raise the control count to
+roughly 675 without changing the prompt population.
+
+Those completions are correlated because each triplet shares a prompt. The
+bootstrap therefore samples prompts, not individual completions, and keeps
+each triplet intact. This improves tail resolution without pretending that 675
+outputs are 675 independent prompts.
 
 ## Ten hard interview questions and strong answers
 

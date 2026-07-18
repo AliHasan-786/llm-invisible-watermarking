@@ -6,7 +6,7 @@ The policy question is deliberately narrow: when Article 50 asks providers to ma
 
 ## Status
 
-Phase P0 is complete: the preregistration was approved on July 18, 2026 with tripled unwatermarked calibration completions and a prompt-clustered bootstrap interval for realized calibration FPR. P1 implementation and a quarantined no-cost pilot are authorized. The original coursework baseline committed on `main` has an integrity manifest and a one-command verifier. The SynthID comparison has **not** been run, and no result is claimed for it yet.
+Phase P0 is complete: the preregistration was approved on July 18, 2026 with tripled unwatermarked calibration completions and a prompt-clustered bootstrap interval for realized calibration FPR. The P1 protocol, SynthID adapter, score calibration, run manifests, resumable ledger, and quarantined pilot runner are implemented and tested. The pilot is blocked locally because this machine has no CUDA GPU and is not logged in to the gated Hugging Face model repository. No login or paid compute was attempted. The SynthID comparison has **not** been run, and no result is claimed for it yet.
 
 Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=en) and the European Commission's [Code of Practice page](https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content).
 
@@ -51,18 +51,44 @@ The fixed protocol is in [`PREREGISTRATION.md`](PREREGISTRATION.md). In brief:
 - quality: perplexity ratio plus a blinded readability spot check;
 - reporting: full ROC/DET curves, length curves, confidence intervals, negative results, and protocol deviations.
 
+## Run the frozen P1 pipeline
+
+The runner fails closed when gated access or a CUDA runtime is absent:
+
+```bash
+python scripts/run_article50.py preflight --model gemma
+python scripts/run_article50.py freeze-prompts --model gemma
+python scripts/run_article50.py generate --model gemma --pilot-prompts 20
+```
+
+See `PILOT_RUNBOOK.md` for the no-cost Colab/Kaggle handoff. Pilot artifacts
+remain under `results/article50/pilot/`; the confirmatory path is separate.
+After generation, each detector is scored independently:
+
+```bash
+python scripts/score_article50.py results/article50/pilot/gemma/completions.jsonl --detector kirchenbauer
+python scripts/score_article50.py results/article50/pilot/gemma/completions.jsonl --detector synthid --eos-token-id TOKEN_ID
+```
+
+Each clean headline artifact records the target FPR, threshold, realized
+calibration FPR and its prompt-clustered bootstrap interval, held-out TPR/FPR
+and intervals, sample counts, and strict tie rule.
+
 ## Repository map
 
 ```text
 watermark/                  Kirchenbauer injector and detector
 pipeline/                   Prompt loading and generation
 evaluation/                 Metrics and attack helpers
+scripts/run_article50.py    Frozen prompt, plan, manifest, and generation runner
+scripts/score_article50.py  Detector scoring and clean headline artifacts
 scripts/reproduce_baseline.py
                             Offline cache verifier and table reproduction
 results/                    Preserved coursework artifacts and SHA-256 manifest
 tests/                      Detector-math tests
+PILOT_RUNBOOK.md            Quarantined no-cost GPU pilot handoff
 docs/ci/quality.yml         Staged GitHub Actions workflow
-PREREGISTRATION.md          Frozen protocol awaiting approval
+PREREGISTRATION.md          Approved and frozen protocol
 DATA_PROVENANCE.md          Dataset and cache lineage
 EXPLAINER.md                Architecture and interview preparation for Ali
 DECISION_BRIEF.md           Current gate evidence and recommendation

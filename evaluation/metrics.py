@@ -2,8 +2,11 @@
 Evaluation metrics: perplexity, detection statistics, TPR/FPR curves.
 """
 
+from __future__ import annotations
+
 import math
-from typing import List, Tuple
+from collections import defaultdict
+from typing import List, Mapping, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -102,14 +105,199 @@ def compute_tpr_at_fpr(
     Given watermarked and unwatermarked z-score lists, return (threshold, TPR)
     at the specified FPR level.
     """
-    uwm_sorted = sorted(uwm_z_scores)
-    n = len(uwm_sorted)
-    idx = int((1 - target_fpr) * n)
-    threshold = uwm_sorted[min(idx, n - 1)]
+    threshold = calibrate_threshold(uwm_z_scores, target_fpr)
 
     tpr = sum(z > threshold for z in wm_z_scores) / len(wm_z_scores) if wm_z_scores else 0.0
     fpr_actual = sum(z > threshold for z in uwm_z_scores) / len(uwm_z_scores) if uwm_z_scores else 0.0
     return threshold, tpr, fpr_actual
+
+
+def calibrate_threshold(
+    control_scores: Sequence[float],
+    target_fpr: float = 0.01,
+) -> float:
+    """Largest-power observed threshold whose strict-`>` FPR is within target.
+
+    Ties count as missed. Choosing the smallest observed threshold satisfying
+    the constraint therefore maximizes detections without exceeding the
+    empirical target.
+    """
+    if not control_scores:
+        raise ValueError("at least one calibration control score is required")
+    if not 0 <= target_fpr < 1:
+        raise ValueError("target_fpr must be in [0, 1)")
+    values = np.asarray(control_scores, dtype=float)
+    if not np.all(np.isfinite(values)):
+        raise ValueError("control scores must be finite")
+    allowed_exceedances = math.floor(target_fpr * len(values))
+    descending = np.sort(values)[::-1]
+    return float(descending[allowed_exceedances])
+
+
+def realized_fpr(scores: Sequence[float], threshold: float) -> float:
+    if not scores:
+        raise ValueError("at least one score is required")
+    return float(np.mean(np.asarray(scores, dtype=float) > threshold))
+
+
+def clustered_calibration_fpr_ci(
+    scores_by_prompt: Mapping[str, Sequence[float]],
+    threshold: float,
+    *,
+    n_bootstrap: int = 10_000,
+    confidence: float = 0.95,
+    seed: int = 42,
+) -> tuple[float, float]:
+    """Bootstrap realized FPR while retaining each prompt's control triplet."""
+    if not scores_by_prompt:
+        raise ValueError("at least one calibration prompt is required")
+    if n_bootstrap < 1:
+        raise ValueError("n_bootstrap must be positive")
+    if not 0 < confidence < 1:
+        raise ValueError("confidence must be between 0 and 1")
+    clusters = []
+    for prompt_identifier, values in sorted(scores_by_prompt.items()):
+        array = np.asarray(values, dtype=float)
+        if len(array) != 3:
+            raise ValueError(
+                f"calibration prompt {prompt_identifier} has {len(array)} controls; expected 3"
+            )
+        if not np.all(np.isfinite(array)):
+            raise ValueError("calibration scores must be finite")
+        clusters.append(array > threshold)
+    detections = np.stack(clusters)
+    rng = np.random.default_rng(seed)
+    n_clusters = len(clusters)
+    estimates = np.empty(n_bootstrap, dtype=float)
+    for index in range(n_bootstrap):
+        sample = rng.integers(0, n_clusters, size=n_clusters)
+        estimates[index] = detections[sample].mean()
+    alpha = (1 - confidence) / 2
+    low, high = np.quantile(estimates, [alpha, 1 - alpha])
+    return float(low), float(high)
+
+
+def calibration_summary(
+    rows: Sequence[Mapping[str, object]],
+    *,
+    target_fpr: float = 0.01,
+    n_bootstrap: int = 10_000,
+    seed: int = 42,
+) -> dict[str, object]:
+    """Return threshold and amended realized-calibration-FPR estimate."""
+    grouped: dict[str, list[float]] = defaultdict(list)
+    for row in rows:
+        grouped[str(row["prompt_id"])].append(float(row["score"]))
+    all_scores = [value for values in grouped.values() for value in values]
+    threshold = calibrate_threshold(all_scores, target_fpr)
+    ci = clustered_calibration_fpr_ci(
+        grouped,
+        threshold,
+        n_bootstrap=n_bootstrap,
+        seed=seed,
+    )
+    return {
+        "target_fpr": target_fpr,
+        "threshold": threshold,
+        "realized_calibration_fpr": realized_fpr(all_scores, threshold),
+        "realized_calibration_fpr_ci_95": list(ci),
+        "n_calibration_prompts": len(grouped),
+        "n_calibration_controls": len(all_scores),
+        "bootstrap_resamples": n_bootstrap,
+        "bootstrap_unit": "prompt_cluster_with_three_controls",
+        "ties": "not_detected",
+    }
+
+
+def bootstrap_proportion_ci(
+    detections: Sequence[bool],
+    *,
+    n_bootstrap: int = 10_000,
+    confidence: float = 0.95,
+    seed: int = 42,
+) -> tuple[float, float]:
+    """Percentile bootstrap interval for a held-out prompt-level proportion."""
+    values = np.asarray(detections, dtype=float)
+    if len(values) == 0:
+        raise ValueError("at least one held-out observation is required")
+    rng = np.random.default_rng(seed)
+    samples = rng.choice(values, size=(n_bootstrap, len(values)), replace=True)
+    estimates = samples.mean(axis=1)
+    alpha = (1 - confidence) / 2
+    low, high = np.quantile(estimates, [alpha, 1 - alpha])
+    return float(low), float(high)
+
+
+def headline_detection_summary(
+    calibration_rows: Sequence[Mapping[str, object]],
+    heldout_rows: Sequence[Mapping[str, object]],
+    *,
+    positive_scheme: str,
+    target_fpr: float = 0.01,
+    n_bootstrap: int = 10_000,
+    seed: int = 42,
+) -> dict[str, object]:
+    """Build the clean held-out headline row for one detector/scheme pair."""
+    calibration = calibration_summary(
+        calibration_rows,
+        target_fpr=target_fpr,
+        n_bootstrap=n_bootstrap,
+        seed=seed,
+    )
+    threshold = float(calibration["threshold"])
+    positive_by_prompt = {
+        str(row["prompt_id"]): float(row["score"])
+        for row in heldout_rows
+        if row["scheme"] == positive_scheme
+    }
+    controls_by_prompt = {
+        str(row["prompt_id"]): float(row["score"])
+        for row in heldout_rows
+        if row["scheme"] == "control"
+    }
+    complete_prompt_ids = sorted(set(positive_by_prompt) & set(controls_by_prompt))
+    if not complete_prompt_ids:
+        raise ValueError("held-out positive and control scores are both required")
+    positive = [positive_by_prompt[prompt] for prompt in complete_prompt_ids]
+    controls = [controls_by_prompt[prompt] for prompt in complete_prompt_ids]
+    positive_hits = [score > threshold for score in positive]
+    control_hits = [score > threshold for score in controls]
+    available_positive_hits = [
+        score > threshold for score in positive_by_prompt.values()
+    ]
+    available_control_hits = [
+        score > threshold for score in controls_by_prompt.values()
+    ]
+    return {
+        **calibration,
+        "scheme": positive_scheme,
+        "condition": "clean",
+        "heldout_tpr": float(np.mean(positive_hits)),
+        "heldout_tpr_ci_95": list(
+            bootstrap_proportion_ci(
+                positive_hits,
+                n_bootstrap=n_bootstrap,
+                seed=seed,
+            )
+        ),
+        "heldout_fpr": float(np.mean(control_hits)),
+        "heldout_fpr_ci_95": list(
+            bootstrap_proportion_ci(
+                control_hits,
+                n_bootstrap=n_bootstrap,
+                seed=seed + 1,
+            )
+        ),
+        "n_heldout_positive": len(positive),
+        "n_heldout_controls": len(controls),
+        "complete_case_prompts": len(complete_prompt_ids),
+        "all_available_sensitivity": {
+            "heldout_tpr": float(np.mean(available_positive_hits)),
+            "heldout_fpr": float(np.mean(available_control_hits)),
+            "n_heldout_positive": len(available_positive_hits),
+            "n_heldout_controls": len(available_control_hits),
+        },
+    }
 
 
 def roc_curve_data(

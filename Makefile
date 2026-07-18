@@ -1,9 +1,10 @@
 .PHONY: test reproduce-baseline check
+PYTHON ?= python3
 
 test:
-	python3 -m unittest discover -s tests -v
+	$(PYTHON) -m pytest -q
 
 reproduce-baseline:
-	python3 scripts/reproduce_baseline.py
+	$(PYTHON) scripts/reproduce_baseline.py
 
 check: test reproduce-baseline
