@@ -16,7 +16,7 @@ import numpy as np
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CACHE_DIR = ROOT / "results" / "baseline"
+CACHE_DIR = ROOT / "results"
 MANIFEST_PATH = CACHE_DIR / "manifest.json"
 TOLERANCE = 1e-12
 
@@ -99,7 +99,7 @@ def verify_detection(prefix: str) -> dict:
     return summary
 
 
-def verify_robustness(prefix: str, threshold: float) -> None:
+def verify_robustness(prefix: str, threshold: float) -> dict:
     summary = load_json(f"robustness_{prefix}.json")
     arrays = np.load(CACHE_DIR / f"robustness_{prefix}_zscores.npz")
     if set(summary) != set(arrays.files):
@@ -115,6 +115,7 @@ def verify_robustness(prefix: str, threshold: float) -> None:
             float(np.mean(values > threshold)),
             expected["tpr_at_1pct_fpr"],
         )
+    return summary
 
 
 def main() -> int:
@@ -129,7 +130,7 @@ def main() -> int:
     gemma = verify_detection("gemma")
     llama = verify_detection("llama")
     verify_robustness("gemma", gemma["calibrated_z_threshold"])
-    verify_robustness("llama", llama["calibrated_z_threshold"])
+    llama_robustness = verify_robustness("llama", llama["calibrated_z_threshold"])
 
     print(f"Verified {len(manifest['files'])} cached artifacts against SHA-256.")
     print()
@@ -144,8 +145,13 @@ def main() -> int:
             f"{summary['ppl_ratio_wm_over_uwm']:>9.3f}"
         )
     print()
-    print("Note: the reported 27.3% LLM-paraphrase TPR has no surviving raw cache.")
-    print("It remains a report-only baseline claim until reproduced under the preregistered suite.")
+    paraphrase = llama_robustness["llm_paraphrase"]
+    print(
+        "Llama LLM-paraphrase TPR: "
+        f"{paraphrase['tpr_at_1pct_fpr']:.1%} "
+        f"(n={paraphrase['n']}; reproduced from cached z-scores)"
+    )
+    print("The paraphrased texts themselves are not cached, so the attack must still be rerun.")
     return 0
 
 

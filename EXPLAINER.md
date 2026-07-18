@@ -6,7 +6,7 @@ This file is your private study guide. It explains what the repository does, why
 
 Language-model watermarking changes token sampling so generated text carries a statistical signal. A detector later looks for that signal without needing the original prompt or model weights.
 
-The course project implemented the Kirchenbauer green-list scheme. It partitions the vocabulary into a pseudorandom "green" half at every generation step and adds a logit bias to those tokens. Detection replays the partition, counts green hits, and converts the excess into a z-score. The preserved baseline reached 90.0% TPR at a nominal 1% FPR on Gemma 2 9B and 98.0% on Llama 3.1 8B. The final report says an LLM paraphrase reduced Llama detection to 27.3%, but the raw paraphrase cache did not survive.
+The course project implemented the Kirchenbauer green-list scheme. It partitions the vocabulary into a pseudorandom "green" half at every generation step and adds a logit bias to those tokens. Detection replays the partition, counts green hits, and converts the excess into a z-score. The preserved baseline reached 90.0% TPR at a nominal 1% FPR on Gemma 2 9B and 98.0% on Llama 3.1 8B. The cached Llama paraphrase z-scores reproduce the report's 27.3% TPR exactly, although the paraphrased texts needed to replay the attack did not survive.
 
 The extension asks whether SynthID-Text, a newer tournament-sampling watermark deployed in the Google ecosystem and available in open source, degrades more gracefully. The policy hook is Article 50(2) of the EU AI Act, which makes "detectable" and "robust" operationally important without supplying a universal numeric threshold.
 
@@ -54,7 +54,7 @@ SynthID does not use a fixed green list. Its tournament sampler uses pseudorando
 
 Complete in P0:
 
-- baseline caches recovered and hashed;
+- baseline caches verified and hashed;
 - detector math tests;
 - offline baseline verification;
 - pinned Python dependencies;
@@ -101,7 +101,7 @@ The Bayesian detector requires training, which creates extra choices around trai
 
 ### 7. What did repository cleanup uncover?
 
-The clone ignored its entire results directory, so the public history had no reproducible results and contained stale empty stubs. The actual caches survived one directory above the clone, including byte-identical Gemma duplicates. I restored them under a manifest with SHA-256 hashes. The raw 27.3% paraphrase cache did not survive, so that claim is explicitly marked for replication.
+The local clone's tracking ref was stale, which initially made the repository appear to lack results. The current remote history already contained the complete course caches. I rebased onto that history, verified the caches under a SHA-256 manifest, and added a one-command audit. The 27.3% score array survives; the actual paraphrased texts do not, so the attack is still explicitly marked for fresh replication.
 
 ### 8. How do you prevent cherry-picking?
 

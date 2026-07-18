@@ -9,7 +9,8 @@ class WatermarkDetectorTests(unittest.TestCase):
         detector = WatermarkDetector(vocab_size=16, gamma=0.5, seed=42, z_threshold=1.5)
         token_ids = [0]
         for _ in range(4):
-            token_ids.append(min(detector._get_greenlist_set(token_ids[-1])))
+            green_mask = detector._get_greenlist_set(token_ids[-1])
+            token_ids.append(next(index for index, is_green in enumerate(green_mask) if is_green))
 
         result = detector.score_sequence(token_ids)
 

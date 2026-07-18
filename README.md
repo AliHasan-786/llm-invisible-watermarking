@@ -6,7 +6,7 @@ The policy question is deliberately narrow: when Article 50 asks providers to ma
 
 ## Status
 
-Phase P0 is at the preregistration gate. The original coursework baseline has been recovered and made reproducible from local caches. The SynthID comparison has **not** been run, and no result is claimed for it yet.
+Phase P0 is at the preregistration gate. The original coursework baseline committed on `main` has been given an integrity manifest and a one-command verifier. The SynthID comparison has **not** been run, and no result is claimed for it yet.
 
 Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=en) and the European Commission's [Code of Practice page](https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content).
 
@@ -38,7 +38,7 @@ Preserved results from the original Kirchenbauer-style implementation:
 | `google/gemma-2-9b-it` | 201 / 201 | 90.0% | 1.095 |
 | `meta-llama/Llama-3.1-8B-Instruct` | 99 / 98 | 98.0% | 1.014 |
 
-These values trace to `results/baseline/detection_*_summary.json` and the corresponding `.npz` arrays. The original report's 27.3% TPR after an LLM paraphrase is retained as a report claim but has no surviving raw paraphrase cache; it must be reproduced within ±5 percentage points before any new public claim ships.
+These values trace to `results/detection_*_summary.json` and the corresponding `.npz` arrays. The original report's 27.3% TPR after an LLM paraphrase is exactly reproducible from `results/robustness_llama_zscores.npz`; the paraphrased texts themselves are not cached, so the attack must still be rerun within ±5 percentage points before any new public claim ships.
 
 ## Study design
 
@@ -59,7 +59,7 @@ pipeline/                   Prompt loading and generation
 evaluation/                 Metrics and attack helpers
 scripts/reproduce_baseline.py
                             Offline cache verifier and table reproduction
-results/baseline/           Preserved, hashed coursework artifacts
+results/                    Preserved coursework artifacts and SHA-256 manifest
 tests/                      Detector-math tests
 docs/ci/quality.yml         Staged GitHub Actions workflow
 PREREGISTRATION.md          Frozen protocol awaiting approval

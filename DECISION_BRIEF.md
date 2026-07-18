@@ -16,27 +16,27 @@ Because this preregistration names vendors/models and will govern public-facing 
 
 ## What was done
 
-1. Recovered the complete course baseline cache from the canonical project materials and verified an independently saved Gemma copy was byte-identical.
-2. Committed the preregistration scaffold before importing any baseline result artifact:
-   - preregistration commit: `faa3038227b2868cdee678ea742d063a153c18af`
-   - baseline cache commit: `66fb4ce433eb87a7e9e4a31acfc58c23fc32f2aa`
+1. Fetched and inspected the force-updated canonical GitHub history, which already contains the complete course baseline cache, report sources, figures, and current evaluation scripts.
+2. Verified an independently saved Gemma copy is byte-identical and added a SHA-256 manifest over the authoritative committed root caches.
+3. Committed the preregistration after all pre-existing coursework results and before any SynthID result:
+   - preregistration commit: `bfe4481`
    - no SynthID result exists.
-3. Added a SHA-256 manifest for 17 cached artifacts and an offline one-command verifier.
-4. Added six detector-math tests and fixed two issues those tests exposed:
+4. Added a SHA-256 manifest for 17 cached artifacts and an offline one-command verifier.
+5. Added six detector-math tests and fixed two issues those tests exposed:
    - detector-only imports no longer require Transformers;
    - finite-sample threshold calibration now respects the requested maximum empirical FPR under the detector's strict comparison rule.
-5. Deleted the ignored zero-byte Gemma corpus, empty length-curve stub, stale skip note, and stale ignored figures from the clone.
-6. Added a pinned environment, data/provenance card, README, private explainer, portfolio-entry draft with a publication hold, and a staged CI workflow.
-7. Corrected the temporal framing: Article 50's relevant obligations become applicable on August 2, 2026; they have not yet taken effect as of this brief.
+6. Preserved the newer remote cleanup, including its removal of the stale skip note that contradicted shipped Llama results.
+7. Added a pinned environment, data/provenance card, README, private explainer, portfolio-entry draft with a publication hold, and a staged CI workflow.
+8. Corrected the temporal framing: Article 50's relevant obligations become applicable on August 2, 2026; they have not yet taken effect as of this brief.
 
 ## Evidence
 
 | Evidence | Path or command | Result |
 | --- | --- | --- |
 | Frozen protocol | `PREREGISTRATION.md` | schemes, hypotheses, attacks, budgets, models/revisions, metrics, exclusions, stopping rule, and compute plan fixed |
-| Baseline lineage | `DATA_PROVENANCE.md` | cache source, data fields, real-person-content note, limitations, and future run ledger defined |
-| Cache integrity | `results/baseline/manifest.json` | 17/17 files match SHA-256 |
-| Offline reproduction | `python3 scripts/reproduce_baseline.py` | Gemma 90.0% TPR; Llama 98.0% TPR; exact match to cached summaries |
+| Baseline lineage | `DATA_PROVENANCE.md` | remote history, cache source, data fields, real-person-content note, limitations, and future run ledger defined |
+| Cache integrity | `results/manifest.json` | 17/17 files match SHA-256 |
+| Offline reproduction | `python3 scripts/reproduce_baseline.py` | Gemma 90.0% TPR; Llama 98.0% TPR; Llama paraphrase 27.3%; exact matches to cached arrays |
 | Detector tests | `python3 -m unittest discover -s tests -v` | 6/6 passed |
 | Full local check | `make check` | passed |
 | Dependency resolution | disposable venv + `pip install --dry-run -r requirements.txt` | resolved with no version conflict |
@@ -50,7 +50,7 @@ Because this preregistration names vendors/models and will govern public-facing 
 | --- | --- | --- |
 | README | complete | `README.md` |
 | detector-math tests | complete | `tests/test_detector.py` |
-| repo cleanup / empty stubs | complete | clean result layout under `results/baseline/` |
+| repo cleanup / empty stubs | complete | current remote `main` cleanup preserved; authoritative artifacts remain under `results/` |
 | preregistered attacks, budgets, metrics, models, hypotheses | complete, awaiting approval | `PREREGISTRATION.md` |
 | compute plan | complete, awaiting any later money decision | preregistration §11 |
 | P0 gate | **open** | this brief |
@@ -60,15 +60,15 @@ P1 and later phases have not started.
 ## Acceptance-criteria status
 
 - **One-command rerun from caches:** met for the preserved course baseline through `make reproduce-baseline`; not yet applicable to new SynthID results.
-- **Every number traces to a cached run with pinned model IDs:** met for the displayed Gemma/Llama headline values. The original report's 27.3% LLM-paraphrase TPR lacks a surviving raw cache and is explicitly quarantined as report-only.
-- **Preregistration commit predates result commits:** met for this extension. The first preregistration commit precedes the baseline-cache recovery commit, and no SynthID result exists.
+- **Every number traces to a cached run with pinned model IDs:** met for the displayed Gemma/Llama headline values and the 27.3% LLM-paraphrase score. The paraphrased text itself is not cached.
+- **Preregistration commit predates result commits:** met for the extension's new results. Coursework results necessarily predate this extension's preregistration; no SynthID result exists.
 - **Interactive works on mobile:** not started; P2.
 - **Original paraphrase collapse reproduced within ±5 percentage points:** not met; required before new claims ship.
 - **Required limitations:** written before new results in `PREREGISTRATION.md`, `README.md`, and `DATA_PROVENANCE.md`.
 
 ## Uncertainty and risk
 
-1. **Missing paraphrase cache:** the 27.3% figure is supported by the final PDF but not a surviving raw output. H1 makes replication mandatory.
+1. **Partial paraphrase cache:** the 27.3% figure is exactly supported by cached z-scores, but the paraphrased texts needed to replay the attack are absent. H1 makes fresh replication mandatory.
 2. **Low-FPR resolution:** roughly hundreds of controls make 1% FPR estimates coarse. The protocol reports realized FPR and bootstrap intervals and avoids stronger low-FPR claims.
 3. **Gated target models:** Gemma and Llama require manually approved Hugging Face access. Codex will not request, enter, or rotate credentials without Ali.
 4. **Implementation scope:** the study evaluates open-source SynthID-Text, not Google's production Gemini deployment.

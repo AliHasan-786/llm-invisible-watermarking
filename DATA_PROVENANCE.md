@@ -18,13 +18,7 @@ The source datasets can contain names and text about real people because they ar
 
 ## Preserved baseline lineage
 
-The canonical clone was missing its ignored result files. On 2026-07-18 the complete baseline cache was recovered from:
-
-```text
-/Users/alihasan/Downloads/Learning Materials/AI & Generative Models/Gen Models Final/results/
-```
-
-An independently saved duplicate under `Gemma_Results/results/` matched the Gemma artifacts byte-for-byte. The repository copies are listed in `results/baseline/manifest.json`, which records a SHA-256 digest for every file.
+The local clone initially had a stale tracking ref and ignored result stubs, but the current GitHub `main` already contains the complete baseline cache. After fetching the force-updated remote history, those committed root artifacts became the source of truth. An independently saved local copy under `Gemma_Results/results/` matches the Gemma artifacts byte-for-byte. The committed files are listed in `results/manifest.json`, which records a SHA-256 digest for every baseline artifact.
 
 The preserved cache contains:
 
@@ -34,7 +28,7 @@ The preserved cache contains:
 - length-curve summaries for both models;
 - robustness summaries and raw z-score arrays for both models.
 
-The original LLM-paraphrase output is not present. The 27.3% TPR value appears in the final report, but no raw paraphrased text or z-score array survived. It is therefore excluded from `make reproduce-baseline` and is a required replication target.
+The Llama robustness summary and z-score array include the LLM-paraphrase condition and reproduce the report's 27.3% TPR exactly. The paraphrased text itself is not present, so the detector score can be audited but the complete attack cannot be replayed. It remains a required fresh replication target.
 
 ## Planned evaluation lineage
 
