@@ -1,9 +1,9 @@
 # Preregistration: watermark robustness under Article 50
 
-**Status:** proposed and frozen for gate review on 2026-07-18. No SynthID result generation may begin until this protocol is approved. The registration commit is the first git commit containing this file and can be resolved with:
+**Status:** approved with the calibration-control amendment below and frozen on 2026-07-18. The approved freeze commit is the most recent commit changing this file before any SynthID result and can be resolved with:
 
 ```bash
-git log --reverse --format=%H -- PREREGISTRATION.md | head -1
+git log -1 --format=%H -- PREREGISTRATION.md
 ```
 
 ## 1. Research question and scope
@@ -72,7 +72,9 @@ For each target model, split prompts by a deterministic hash:
 - 50% calibration controls;
 - 50% held-out evaluation.
 
-Only unwatermarked outputs in the calibration split set detector thresholds. All reported confirmatory TPR/FPR values use the held-out split. Dataset-stratified results are secondary; the pooled held-out result is primary.
+For every calibration prompt, generate **three unwatermarked completions** using three distinct deterministic seeds derived from the prompt ID, global seed 42, and replicate index `{0, 1, 2}`. These three completions are calibration controls only; no watermarked or SynthID completion from the calibration split contributes to confirmatory results. The held-out split keeps one matched completion per scheme/control condition using the primary per-prompt seed.
+
+Only the tripled unwatermarked outputs in the calibration split set detector thresholds. All reported confirmatory TPR/FPR values use the held-out split. Dataset-stratified results are secondary; the pooled held-out result is primary.
 
 ## 6. Fixed attack suite
 
@@ -122,7 +124,7 @@ Run separately with both paraphraser models. Neither step uses a watermark proce
 
 ## 7. Metrics and decision rules
 
-Primary metric: TPR on held-out watermarked outputs at the detector threshold selected on calibration controls to yield the largest attainable empirical FPR not exceeding 1%. Because finite control samples make exactly 1% impossible in some strata, every table reports target FPR, realized calibration FPR, held-out FPR, threshold, and sample counts.
+Primary metric: TPR on held-out watermarked outputs at the detector threshold selected on the tripled calibration controls to yield the largest attainable empirical FPR not exceeding 1%. Because finite control samples make exactly 1% impossible in some strata, every table reports target FPR, realized calibration FPR, held-out FPR, threshold, and sample counts.
 
 Secondary metrics:
 
@@ -137,6 +139,7 @@ Secondary metrics:
 Uncertainty:
 
 - 95% percentile bootstrap confidence intervals with 10,000 prompt-level paired resamples;
+- a separate 95% bootstrap confidence interval for realized calibration FPR, using 10,000 cluster resamples at the calibration-prompt level so each prompt's three control completions stay together;
 - paired bootstrap confidence intervals for SynthID-minus-Kirchenbauer TPR differences;
 - no null-hypothesis significance claim when a confidence interval or sample size is insufficient.
 

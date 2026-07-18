@@ -6,7 +6,7 @@ The policy question is deliberately narrow: when Article 50 asks providers to ma
 
 ## Status
 
-Phase P0 is at the preregistration gate. The original coursework baseline committed on `main` has been given an integrity manifest and a one-command verifier. The SynthID comparison has **not** been run, and no result is claimed for it yet.
+Phase P0 is complete: the preregistration was approved on July 18, 2026 with tripled unwatermarked calibration completions and a prompt-clustered bootstrap interval for realized calibration FPR. P1 implementation and a quarantined no-cost pilot are authorized. The original coursework baseline committed on `main` has an integrity manifest and a one-command verifier. The SynthID comparison has **not** been run, and no result is claimed for it yet.
 
 Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=en) and the European Commission's [Code of Practice page](https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content).
 

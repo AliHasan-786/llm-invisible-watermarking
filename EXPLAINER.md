@@ -58,7 +58,7 @@ Complete in P0:
 - detector math tests;
 - offline baseline verification;
 - pinned Python dependencies;
-- preregistered protocol;
+- approved and frozen preregistered protocol, including three calibration controls per calibration prompt;
 - data/provenance card;
 - current gate brief.
 

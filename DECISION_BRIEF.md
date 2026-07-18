@@ -1,18 +1,16 @@
-# Decision brief: P0 preregistration gate
+# Decision brief: P0 preregistration gate — approved
 
 **Date:** 2026-07-18
 
 **Branch:** `codex/watermark-p0`
 
-**Decision requested:** approve or reject the frozen P1/P2 evaluation protocol in `PREREGISTRATION.md`. Approval authorizes implementation and a no-cost 20-prompt engineering pilot; it does **not** authorize paid compute, credential entry/rotation, publication, or claims about vendors.
+**Decision:** approved on 2026-07-18 with one pre-freeze amendment: generate three unwatermarked calibration completions per calibration prompt using distinct derived seeds, and report realized calibration FPR with a prompt-clustered bootstrap confidence interval.
 
-## Recommendation
+## Authority now granted
 
-**Approve the protocol and no-cost pilot.** It directly covers the spec's fixed attack suite, avoids changing methods after seeing SynthID results, uses held-out controls, pins model/software revisions, and keeps Article 50 framing as measurement rather than legal opinion.
+Proceed with P1 implementation and the no-cost 20-prompt engineering pilot. The pilot remains quarantined from confirmatory results unless it uses the exact frozen configuration.
 
-Do not authorize paid compute yet. Use the pilot to produce a runtime/cost estimate, then return with a separate money decision if free Colab/Kaggle capacity is insufficient.
-
-Because this preregistration names vendors/models and will govern public-facing results, send this brief plus `PREREGISTRATION.md` to Claude Opus 4.8 for independent review before the yes/no call.
+Paid compute, credential entry or rotation, merging, publication, and deployment remain separate gates. H5's 1.15 perplexity-ratio ceiling remains unchanged and must be reported as failed if the observed value exceeds it.
 
 ## What was done
 
@@ -51,11 +49,11 @@ Because this preregistration names vendors/models and will govern public-facing 
 | README | complete | `README.md` |
 | detector-math tests | complete | `tests/test_detector.py` |
 | repo cleanup / empty stubs | complete | current remote `main` cleanup preserved; authoritative artifacts remain under `results/` |
-| preregistered attacks, budgets, metrics, models, hypotheses | complete, awaiting approval | `PREREGISTRATION.md` |
+| preregistered attacks, budgets, metrics, models, hypotheses | complete and approved with calibration amendment | `PREREGISTRATION.md` |
 | compute plan | complete, awaiting any later money decision | preregistration §11 |
-| P0 gate | **open** | this brief |
+| P0 gate | **closed: approved** | this brief |
 
-P1 and later phases have not started.
+P1 is authorized. P2 and later phase gates remain unchanged.
 
 ## Acceptance-criteria status
 
@@ -69,13 +67,12 @@ P1 and later phases have not started.
 ## Uncertainty and risk
 
 1. **Partial paraphrase cache:** the 27.3% figure is exactly supported by cached z-scores, but the paraphrased texts needed to replay the attack are absent. H1 makes fresh replication mandatory.
-2. **Low-FPR resolution:** roughly hundreds of controls make 1% FPR estimates coarse. The protocol reports realized FPR and bootstrap intervals and avoids stronger low-FPR claims.
+2. **Low-FPR resolution:** three calibration completions per calibration prompt triple the tail sample without changing the prompt population. The protocol reports realized FPR with a prompt-clustered bootstrap interval and avoids stronger low-FPR claims.
 3. **Gated target models:** Gemma and Llama require manually approved Hugging Face access. Codex will not request, enter, or rotate credentials without Ali.
 4. **Implementation scope:** the study evaluates open-source SynthID-Text, not Google's production Gemini deployment.
 5. **Author-run attacks:** the attack suite may miss adaptive strategies; this remains a headline limitation.
 6. **CI is staged, not active:** activation requires a workflow-scoped GitHub credential and should happen only in an authorized session.
 
-## Call options
+## Next gate
 
-- **YES:** approve `PREREGISTRATION.md` and authorize P1 implementation plus a no-cost 20-prompt pilot. Paid compute and credentials remain separate gates.
-- **NO:** identify the protocol section to revise. No SynthID run will start.
+If the no-cost pilot cannot run without new credential entry or paid compute, stop with the measured blocker and request only that specific authorization.
