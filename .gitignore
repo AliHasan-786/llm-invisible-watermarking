@@ -8,7 +8,11 @@ __pycache__/
 dist/
 build/
 .env
+.env.*
+!.env.example
 .idea/
+.pytest_cache/
+.coverage
 
 # Locally rendered HTML for the demo (the PDF is committed)
 demo.html

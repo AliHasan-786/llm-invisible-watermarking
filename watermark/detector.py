@@ -38,6 +38,11 @@ class WatermarkDetector:
                          z=4.0 corresponds to ~1-in-30000 false positive rate.
                          Calibrate empirically to hit exactly 1% FPR on your corpus.
         """
+        if vocab_size <= 0:
+            raise ValueError("vocab_size must be positive")
+        if not 0 < gamma < 1:
+            raise ValueError("gamma must be strictly between 0 and 1")
+
         self.vocab_size = vocab_size
         self.gamma = gamma
         self.seed = seed
@@ -85,7 +90,7 @@ class WatermarkDetector:
             cur_token = token_ids[i]
             # Skip tokens outside the (tokenizer) vocab - consistent with processor's clamp.
             # In practice the model never emits such tokens, but guard defensively.
-            if prev_token >= self.vocab_size or cur_token >= self.vocab_size:
+            if not (0 <= prev_token < self.vocab_size and 0 <= cur_token < self.vocab_size):
                 continue
             greenlist = self._get_greenlist_set(prev_token)
             if greenlist[cur_token]:
@@ -117,8 +122,19 @@ class WatermarkDetector:
         Given z-scores from unwatermarked text, find the threshold that achieves target FPR.
         Call this on your control corpus, then set self.z_threshold to the result.
         """
+        if not unwatermarked_z_scores:
+            raise ValueError("unwatermarked_z_scores must not be empty")
+        if not 0 < target_fpr < 1:
+            raise ValueError("target_fpr must be strictly between 0 and 1")
+
         unwatermarked_z_scores_sorted = sorted(unwatermarked_z_scores)
-        idx = int((1 - target_fpr) * len(unwatermarked_z_scores_sorted))
-        threshold = unwatermarked_z_scores_sorted[min(idx, len(unwatermarked_z_scores_sorted) - 1)]
+        n_scores = len(unwatermarked_z_scores_sorted)
+        # Detection uses a strict `z > threshold` comparison. Select the
+        # smallest order statistic whose empirical exceedance rate does not
+        # exceed target_fpr. Finite samples may therefore yield 0% rather than
+        # exactly 1% FPR (for example, fewer than 100 controls at a 1% target).
+        allowed_exceedances = math.floor(target_fpr * n_scores)
+        idx = n_scores - allowed_exceedances - 1
+        threshold = unwatermarked_z_scores_sorted[max(idx, 0)]
         self.z_threshold = threshold
         return threshold
