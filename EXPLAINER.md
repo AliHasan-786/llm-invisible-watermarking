@@ -88,6 +88,11 @@ Implemented in P2 before results:
 - a mobile editorial interactive with a paste/edit lab, transformation buttons,
   before/after scores, baseline chart, and methods walkthrough;
 - a cache-to-report builder that rejects pilot and non-confirmatory artifacts.
+- exact empirical ROC and DET curve artifacts plus 0.1%, 1%, and 5% operating
+  points only where calibration resolution supports them;
+- paired GPT-2 perplexity/length summaries with the fixed 1.15 H5 decision;
+- a source-and-scheme-balanced 60-pair blinded readability queue with 20
+  deterministic second-review overlaps and a separate answer key.
 
 The browser lab deliberately uses a word-level keyed demonstrator. It teaches
 why edits disrupt local statistical evidence without pretending to be the

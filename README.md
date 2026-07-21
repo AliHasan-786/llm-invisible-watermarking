@@ -6,7 +6,7 @@ The policy question is deliberately narrow: when Article 50 asks providers to ma
 
 ## Status
 
-Phase P0 is complete. P1's execution code is complete: the pinned SynthID adapter, immutable prompt revisions, tripled calibration controls, 33-condition attack matrix, detector scoring, paired comparison, cache-to-report builder, resumable ledgers, and one-click quarantined pilot notebook are implemented and tested. P2's report and mobile interactive are built around verified baseline evidence, but remain undeployed and contain no SynthID result. The pilot is blocked locally because this machine has no CUDA GPU and is not logged in to the gated Hugging Face model repository. No login, paid compute, merge, or deployment was attempted.
+Phase P0 is complete. P1's execution code is complete: the pinned SynthID adapter, immutable prompt revisions, tripled calibration controls, 33-condition attack matrix, detector scoring, paired comparison, cache-to-report builder, resumable ledgers, and one-click quarantined pilot notebook are implemented and tested. P2's ROC/DET, fixed operating-point, pinned quality, blinded readability, report, and mobile-interactive pipelines are also built, but remain undeployed and contain no SynthID result. The pilot is blocked locally because this machine has no CUDA GPU and is not logged in to the gated Hugging Face model repository. No login, paid compute, merge, or deployment was attempted.
 
 Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689), the Commission's [20 July 2026 implementation guidelines](https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems), and its [final Code of Practice announcement](https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content).
 
@@ -77,6 +77,20 @@ and intervals, sample counts, and strict tie rule.
 
 [Open the one-click Gemma pilot in Colab](https://colab.research.google.com/github/AliHasan-786/llm-invisible-watermarking/blob/codex/watermark-p0/output/jupyter-notebook/article50_gemma_pilot.ipynb). Ali must complete the masked Hugging Face login cell; the notebook handles the remaining no-cost pilot workflow and bundles the artifacts.
 
+After confirmatory scoring, build the secondary curves, quality table, and
+blinded readability queue:
+
+```bash
+python scripts/analyze_article50_curves.py SCORES.jsonl --positive-scheme synthid --output curves.json
+python scripts/analyze_article50_quality.py COMPLETIONS.jsonl --device cuda
+python scripts/prepare_readability_spotcheck.py COMPLETIONS.jsonl
+```
+
+The quality scorer pins `openai-community/gpt2` at an immutable revision and
+reports the predeclared H5 ceiling whether it passes or fails. The readability
+queue balances three sources × two watermark schemes and assigns 20 of 60
+pairs to a second independent review context.
+
 ## Preview the interactive
 
 ```bash
@@ -103,6 +117,12 @@ scripts/compare_article50_schemes.py
                             Paired SynthID-minus-Kirchenbauer intervals
 scripts/build_article50_report_data.py
                             Confirmatory-cache to report-table builder
+scripts/analyze_article50_curves.py
+                            ROC/DET and supported operating-point artifacts
+scripts/analyze_article50_quality.py
+                            Pinned GPT-2 paired perplexity/length analysis
+scripts/prepare_readability_spotcheck.py
+                            Balanced blinded 60-pair review queue
 scripts/reproduce_baseline.py
                             Offline cache verifier and table reproduction
 results/                    Preserved coursework artifacts and SHA-256 manifest

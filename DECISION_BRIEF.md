@@ -9,9 +9,10 @@ harness.
 
 ## Outcome
 
-P1's non-compute implementation is complete and pushed. P2's report structure,
-mobile interactive, portfolio draft, and deployment configuration are also
-built and locally verified without inventing an extension result. The project
+P1's non-compute implementation is complete and pushed. P2's curve, quality,
+readability, report, mobile interactive, portfolio draft, and deployment
+configuration are also built and locally verified without inventing an
+extension result. The project
 is not complete: no pinned-model pilot, confirmatory SynthID run, fresh H1
 paraphrase replication, quality analysis, merge, or deployment has occurred.
 
@@ -25,6 +26,12 @@ paraphrase replication, quality analysis, merge, or deployment has occurred.
   and study-design walkthrough.
 - `vercel.json`: static routing prepared but not deployed.
 - `PORTFOLIO_ENTRY_DRAFT.md`: updated draft with an explicit publication hold.
+- `scripts/analyze_article50_curves.py`: ROC/DET and supported secondary
+  operating points.
+- `scripts/analyze_article50_quality.py`: pinned GPT-2 paired perplexity,
+  length, and fixed H5 decision.
+- `scripts/prepare_readability_spotcheck.py`: balanced 60-pair blinded queue
+  with 20 second-context overlaps.
 
 The browser lab labels its word-level score as a mechanics demonstrator. It
 does not claim to run the benchmark tokenizer/detector, execute an LLM or real
@@ -34,7 +41,7 @@ translation, report SynthID performance, or determine legal compliance.
 
 | Check | Result |
 | --- | --- |
-| Full test suite | 24 passed |
+| Full test suite | 27 passed |
 | Baseline reproduction | 17/17 hashes; 90.0%, 98.0%, and historical 27.3% reproduced |
 | Report-data builder | rejects pilot/non-confirmatory artifacts; empty extension table is not committed as a result stub |
 | JavaScript | `node --check` passed |
