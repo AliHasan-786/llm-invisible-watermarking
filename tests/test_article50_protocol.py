@@ -8,6 +8,7 @@ from evaluation.metrics import (
     calibration_summary,
     clustered_calibration_fpr_ci,
     headline_detection_summary,
+    paired_tpr_difference,
     realized_fpr,
 )
 from pipeline.article50 import (
@@ -162,3 +163,25 @@ def test_headline_summary_uses_calibration_only_and_reports_heldout_fpr():
     assert summary["n_heldout_controls"] == 2
     assert summary["heldout_tpr"] == 0.5
     assert summary["heldout_fpr"] == 0.5
+
+
+def test_paired_tpr_difference_uses_prompt_intersection():
+    synthid = [
+        {"prompt_id": "a", "scheme": "synthid", "score": 2.0},
+        {"prompt_id": "b", "scheme": "synthid", "score": 2.0},
+        {"prompt_id": "only-s", "scheme": "synthid", "score": 2.0},
+    ]
+    kirchenbauer = [
+        {"prompt_id": "a", "scheme": "kirchenbauer", "score": 2.0},
+        {"prompt_id": "b", "scheme": "kirchenbauer", "score": 0.0},
+        {"prompt_id": "only-k", "scheme": "kirchenbauer", "score": 0.0},
+    ]
+    result = paired_tpr_difference(
+        synthid,
+        kirchenbauer,
+        synthid_threshold=1.0,
+        kirchenbauer_threshold=1.0,
+        n_bootstrap=100,
+    )
+    assert result["n_paired_prompts"] == 2
+    assert result["synthid_minus_kirchenbauer_tpr"] == 0.5

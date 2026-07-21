@@ -42,7 +42,8 @@ from pipeline.article50 import (  # noqa: E402
 
 DATASET_CONFIGS = {
     "cnn_dailymail": {
-        "path": "cnn_dailymail",
+        "path": "abisee/cnn_dailymail",
+        "revision": "96df5e686bee6baa90b8bee7c28b81fa3fa6223d",
         "name": "3.0.0",
         "split": "test",
         "field": "article",
@@ -51,6 +52,7 @@ DATASET_CONFIGS = {
     },
     "writing_prompts": {
         "path": "euclaise/writingprompts",
+        "revision": "35f0aa359452ba8147b34d925684fccee26679cc",
         "name": None,
         "split": "test",
         "field": "prompt",
@@ -58,7 +60,8 @@ DATASET_CONFIGS = {
         "max_prompt_tokens": 60,
     },
     "trivia_qa": {
-        "path": "trivia_qa",
+        "path": "mandarjoshi/trivia_qa",
+        "revision": "0f7faf33a3908546c6fd5b73a660e0f8ff173c2f",
         "name": "rc",
         "split": "validation",
         "field": "question",
@@ -126,6 +129,7 @@ def freeze_prompts(model_alias: str, output: Path, n_per_source: int) -> None:
             config["path"],
             config["name"],
             split=config["split"],
+            revision=config["revision"],
         )
         eligible = []
         counters = {"empty": 0, "tokenization_failure": 0, "too_long": 0, "duplicate": 0}
@@ -301,6 +305,7 @@ def generate(model_alias: str, prompts_path: Path, output_dir: Path, pilot_promp
                     "model_id": pinned["model_id"],
                     "model_revision": pinned["revision"],
                     "tokenizer_vocab_size": len(tokenizer),
+                    "eos_token_id": tokenizer.eos_token_id,
                     "completion": tokenizer.decode(completion_ids, skip_special_tokens=True),
                     "token_ids": completion_ids,
                     "n_tokens": len(completion_ids),

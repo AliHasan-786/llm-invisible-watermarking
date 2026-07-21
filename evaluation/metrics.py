@@ -300,6 +300,51 @@ def headline_detection_summary(
     }
 
 
+def paired_tpr_difference(
+    synthid_rows: Sequence[Mapping[str, object]],
+    kirchenbauer_rows: Sequence[Mapping[str, object]],
+    *,
+    synthid_threshold: float,
+    kirchenbauer_threshold: float,
+    n_bootstrap: int = 10_000,
+    confidence: float = 0.95,
+    seed: int = 42,
+) -> dict[str, object]:
+    """Paired SynthID-minus-Kirchenbauer TPR difference by prompt."""
+    synthid = {
+        str(row["prompt_id"]): float(row["score"])
+        for row in synthid_rows
+        if row["scheme"] == "synthid"
+    }
+    kirchenbauer = {
+        str(row["prompt_id"]): float(row["score"])
+        for row in kirchenbauer_rows
+        if row["scheme"] == "kirchenbauer"
+    }
+    prompt_ids = sorted(set(synthid) & set(kirchenbauer))
+    if not prompt_ids:
+        raise ValueError("no paired SynthID and Kirchenbauer prompts")
+    differences = np.asarray(
+        [
+            float(synthid[prompt] > synthid_threshold)
+            - float(kirchenbauer[prompt] > kirchenbauer_threshold)
+            for prompt in prompt_ids
+        ]
+    )
+    rng = np.random.default_rng(seed)
+    samples = rng.choice(differences, size=(n_bootstrap, len(differences)), replace=True)
+    estimates = samples.mean(axis=1)
+    alpha = (1 - confidence) / 2
+    low, high = np.quantile(estimates, [alpha, 1 - alpha])
+    return {
+        "synthid_minus_kirchenbauer_tpr": float(differences.mean()),
+        "ci_95": [float(low), float(high)],
+        "n_paired_prompts": len(prompt_ids),
+        "bootstrap_resamples": n_bootstrap,
+        "ties": "not_detected",
+    }
+
+
 def roc_curve_data(
     wm_z_scores: List[float],
     uwm_z_scores: List[float],

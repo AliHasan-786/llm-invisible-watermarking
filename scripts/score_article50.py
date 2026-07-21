@@ -23,6 +23,14 @@ def score_rows(
     eos_token_id: int | None,
     vocab_size: int | None,
 ):
+    if eos_token_id is None:
+        recorded_eos = {
+            int(row["eos_token_id"])
+            for row in rows
+            if row.get("eos_token_id") is not None
+        }
+        if len(recorded_eos) == 1:
+            eos_token_id = recorded_eos.pop()
     if detector_name == "kirchenbauer":
         recorded_sizes = {int(row["tokenizer_vocab_size"]) for row in rows if "tokenizer_vocab_size" in row}
         if vocab_size is None:
@@ -58,7 +66,9 @@ def score_rows(
                     "prompt_id": row["prompt_id"],
                     "split": row["split"],
                     "scheme": row["scheme"],
-                    "replicate": row["replicate"],
+                    "replicate": row.get("replicate", 0),
+                    "condition": row.get("condition", "clean"),
+                    "source": row.get("source"),
                     "detector": detector_name,
                     "score": score,
                     "scored_tokens": scored_tokens,
@@ -70,7 +80,8 @@ def score_rows(
                     "prompt_id": row["prompt_id"],
                     "split": row["split"],
                     "scheme": row["scheme"],
-                    "replicate": row["replicate"],
+                    "replicate": row.get("replicate", 0),
+                    "condition": row.get("condition", "clean"),
                     "detector": detector_name,
                     "error_type": type(error).__name__,
                     "error": str(error),
@@ -86,6 +97,11 @@ def main():
     parser.add_argument("--eos-token-id", type=int)
     parser.add_argument("--vocab-size", type=int)
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument(
+        "--calibration-scores",
+        type=Path,
+        help="Clean score JSONL; required when scoring an attack-only file.",
+    )
     parser.add_argument("--bootstrap", type=int, default=10_000)
     args = parser.parse_args()
 
@@ -102,25 +118,47 @@ def main():
     write_jsonl_atomic(output_dir / "score_failures.jsonl", failures)
 
     calibration = [row for row in scored if row["split"] == "calibration"]
+    if not calibration and args.calibration_scores:
+        calibration = [
+            row
+            for row in read_jsonl(args.calibration_scores)
+            if row["split"] == "calibration"
+        ]
+    if not calibration:
+        raise ValueError(
+            "no calibration scores found; pass --calibration-scores from the clean run"
+        )
     heldout = [row for row in scored if row["split"] == "heldout"]
     positive_scheme = "kirchenbauer" if args.detector == "kirchenbauer" else "synthid"
-    headline = headline_detection_summary(
-        calibration,
-        heldout,
-        positive_scheme=positive_scheme,
-        n_bootstrap=args.bootstrap,
-    )
-    headline.update(
-        {
-            "detector": args.detector,
-            "score_failures": len(failures),
-            "result_scope": "pilot"
-            if "pilot" in args.completions.parts
-            else "confirmatory",
-        }
-    )
-    write_json_atomic(output_dir / "headline_clean.json", headline)
-    print(json.dumps(headline, indent=2))
+    headlines = []
+    conditions = sorted({row.get("condition", "clean") for row in heldout})
+    for condition in conditions:
+        condition_rows = [
+            row for row in heldout if row.get("condition", "clean") == condition
+        ]
+        headline = headline_detection_summary(
+            calibration,
+            condition_rows,
+            positive_scheme=positive_scheme,
+            n_bootstrap=args.bootstrap,
+        )
+        headline.update(
+            {
+                "condition": condition,
+                "detector": args.detector,
+                "score_failures": len(
+                    [row for row in failures if row.get("condition", "clean") == condition]
+                ),
+                "result_scope": "pilot"
+                if "pilot" in args.completions.parts
+                else "confirmatory",
+            }
+        )
+        headlines.append(headline)
+    write_json_atomic(output_dir / "headline_by_condition.json", headlines)
+    if len(headlines) == 1 and headlines[0]["condition"] == "clean":
+        write_json_atomic(output_dir / "headline_clean.json", headlines[0])
+    print(json.dumps(headlines, indent=2))
     return 0
 
 

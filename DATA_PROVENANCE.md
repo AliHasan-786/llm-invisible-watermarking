@@ -8,9 +8,9 @@ This card covers the preserved CS 5788 baseline and the planned Article 50 evalu
 
 | Dataset | Upstream identifier | Split in code | Use |
 | --- | --- | --- | --- |
-| CNN/DailyMail | `cnn_dailymail`, config `3.0.0` | `test` | summarization prompts |
-| WritingPrompts | `euclaise/writingprompts` | `test` | open-ended continuation prompts |
-| TriviaQA | `trivia_qa`, config `rc` | `validation` | question-answer prompts |
+| CNN/DailyMail | `abisee/cnn_dailymail`, config `3.0.0`, revision `96df5e686bee6baa90b8bee7c28b81fa3fa6223d` | `test` | summarization prompts |
+| WritingPrompts | `euclaise/writingprompts`, revision `35f0aa359452ba8147b34d925684fccee26679cc` | `test` | open-ended continuation prompts |
+| TriviaQA | `mandarjoshi/trivia_qa`, config `rc`, revision `0f7faf33a3908546c6fd5b73a660e0f8ff173c2f` | `validation` | question-answer prompts |
 
 `pipeline/generate.py` stores the prompt text, generated completion, completion token IDs, source name, model ID, watermark parameters, and sample length. The baseline used seed 42, `gamma=0.5`, `delta=2.0` for headline runs, temperature 1.0, top-p 0.95, and at most 200 new tokens.
 
@@ -43,10 +43,16 @@ Each new run will write:
 
 No result is deleted because it is negative. Failed or excluded samples remain in the run ledger with a reason code.
 
+The P1 prompt freezer resolves the public datasets at the immutable revisions
+above before sampling. Its metadata records the source row index, constructed
+prompt, token count, exclusion totals, target tokenizer revision, and prompt
+file digest. No prompt is selected or removed using completion quality or a
+detector score.
+
 ## Known limitations
 
 - The source prompts are English-language even when an attack temporarily translates them.
 - Only two target model families are planned.
 - The SynthID condition evaluates the open-source implementation, not Google's production Gemini deployment.
 - Attacks are author-designed and author-run.
-- Dataset versions were not pinned by revision in the original coursework cache; P1 must pin exact dataset revisions before generation.
+- Dataset revisions were not pinned in the original coursework cache. The P1 extension pins them, but that does not retroactively version the baseline prompt download.
