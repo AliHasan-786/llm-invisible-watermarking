@@ -6,9 +6,9 @@ The policy question is deliberately narrow: when Article 50 asks providers to ma
 
 ## Status
 
-Phase P0 is complete: the preregistration was approved on July 18, 2026 with tripled unwatermarked calibration completions and a prompt-clustered bootstrap interval for realized calibration FPR. The P1 protocol, SynthID adapter, score calibration, run manifests, resumable ledger, and quarantined pilot runner are implemented and tested. The pilot is blocked locally because this machine has no CUDA GPU and is not logged in to the gated Hugging Face model repository. No login or paid compute was attempted. The SynthID comparison has **not** been run, and no result is claimed for it yet.
+Phase P0 is complete. P1's execution code is complete: the pinned SynthID adapter, immutable prompt revisions, tripled calibration controls, 33-condition attack matrix, detector scoring, paired comparison, cache-to-report builder, resumable ledgers, and one-click quarantined pilot notebook are implemented and tested. P2's report and mobile interactive are built around verified baseline evidence, but remain undeployed and contain no SynthID result. The pilot is blocked locally because this machine has no CUDA GPU and is not logged in to the gated Hugging Face model repository. No login, paid compute, merge, or deployment was attempted.
 
-Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=en) and the European Commission's [Code of Practice page](https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content).
+Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689), the Commission's [20 July 2026 implementation guidelines](https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems), and its [final Code of Practice announcement](https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content).
 
 ## Reproduce the preserved baseline
 
@@ -67,12 +67,27 @@ After generation, each detector is scored independently:
 
 ```bash
 python scripts/score_article50.py results/article50/pilot/gemma/completions.jsonl --detector kirchenbauer
-python scripts/score_article50.py results/article50/pilot/gemma/completions.jsonl --detector synthid --eos-token-id TOKEN_ID
+python scripts/score_article50.py results/article50/pilot/gemma/completions.jsonl --detector synthid
+python scripts/run_article50_attacks.py results/article50/pilot/gemma/completions.jsonl --model gemma --mode deterministic
 ```
 
 Each clean headline artifact records the target FPR, threshold, realized
 calibration FPR and its prompt-clustered bootstrap interval, held-out TPR/FPR
 and intervals, sample counts, and strict tie rule.
+
+[Open the one-click Gemma pilot in Colab](https://colab.research.google.com/github/AliHasan-786/llm-invisible-watermarking/blob/codex/watermark-p0/output/jupyter-notebook/article50_gemma_pilot.ipynb). Ali must complete the masked Hugging Face login cell; the notebook handles the remaining no-cost pilot workflow and bundles the artifacts.
+
+## Preview the interactive
+
+```bash
+python -m http.server 8000
+# open http://localhost:8000/site/
+```
+
+The browser lab uses a disclosed word-level mechanics demonstrator, not the
+benchmark tokenizer or detector. Its chart contains only preserved coursework
+values. `REPORT.md` is similarly result-safe: extension tables stay pending
+until the report-data builder finds confirmatory artifacts.
 
 ## Repository map
 
@@ -81,12 +96,21 @@ watermark/                  Kirchenbauer injector and detector
 pipeline/                   Prompt loading and generation
 evaluation/                 Metrics and attack helpers
 scripts/run_article50.py    Frozen prompt, plan, manifest, and generation runner
-scripts/score_article50.py  Detector scoring and clean headline artifacts
+scripts/run_article50_attacks.py
+                            Frozen deterministic and model-backed attack matrix
+scripts/score_article50.py  Detector scoring and condition headline artifacts
+scripts/compare_article50_schemes.py
+                            Paired SynthID-minus-Kirchenbauer intervals
+scripts/build_article50_report_data.py
+                            Confirmatory-cache to report-table builder
 scripts/reproduce_baseline.py
                             Offline cache verifier and table reproduction
 results/                    Preserved coursework artifacts and SHA-256 manifest
 tests/                      Detector-math tests
 PILOT_RUNBOOK.md            Quarantined no-cost GPU pilot handoff
+output/jupyter-notebook/    Colab-ready gated-compute pilot
+REPORT.md                   Paper-structured report; extension results pending
+site/                       Mobile editorial mechanics lab
 docs/ci/quality.yml         Staged GitHub Actions workflow
 PREREGISTRATION.md          Approved and frozen protocol
 DATA_PROVENANCE.md          Dataset and cache lineage

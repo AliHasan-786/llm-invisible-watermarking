@@ -16,11 +16,22 @@ must not be copied into the confirmatory result tree.
 
 ## Commands
 
+Preferred: open
+[`output/jupyter-notebook/article50_gemma_pilot.ipynb`](output/jupyter-notebook/article50_gemma_pilot.ipynb)
+in Colab. It verifies the preregistration freeze, pauses for Ali's masked
+Hugging Face login, executes the commands below, checks plan completeness, and
+creates a ZIP for download.
+
+Manual equivalent:
+
 ```bash
 python -m pip install -r requirements.txt
 python scripts/run_article50.py preflight --model gemma
 python scripts/run_article50.py freeze-prompts --model gemma
 python scripts/run_article50.py generate --model gemma --pilot-prompts 20
+python scripts/score_article50.py results/article50/pilot/gemma/completions.jsonl --detector kirchenbauer
+python scripts/score_article50.py results/article50/pilot/gemma/completions.jsonl --detector synthid
+python scripts/run_article50_attacks.py results/article50/pilot/gemma/completions.jsonl --model gemma --mode deterministic
 ```
 
 The pilot plans 20 prompts using deterministic, source-balanced selection.
@@ -34,6 +45,7 @@ The required evidence is:
 - `generation_plan.jsonl` and its summary;
 - `completions.jsonl`;
 - `failures.jsonl`, including an empty file when there are no failures.
+- clean detector scores/headline diagnostics and deterministic attack caches.
 
 ## Stop conditions
 

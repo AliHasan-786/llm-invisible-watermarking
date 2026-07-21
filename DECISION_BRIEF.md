@@ -1,63 +1,66 @@
-# Decision brief: P1 engineering complete — execution gate
+# Decision brief: P1 harness + pre-result P2 artifacts
 
 **Date:** 2026-07-20
 
 **Branch:** `codex/watermark-p0`
 
-**Recommended call:** P1's frozen execution harness is ready. Proceed with the
-already-approved 20-prompt no-cost pilot when Ali is available to complete the
-personal Hugging Face credential cell. Do not authorize paid compute, model
-substitution, quantization, merge, publication, or deployment through this
-decision.
+**Latest completed phase commit:** `f6dfad5` — frozen P1 attack and analysis
+harness.
 
-## What is complete
+## Outcome
 
-- Exact source-stratified split, matched held-out seeds, and three distinct
-  calibration-control seeds per prompt.
-- Immutable model, tokenizer, and public-dataset revisions.
-- Transformers 4.57.6 SynthID generation plus official untrained weighted-mean
-  detection semantics.
-- All 33 frozen attack conditions: 23 deterministic edits/length conditions
-  and 10 model-backed paraphrase, back-translation, and laundering conditions.
-- One-model-at-a-time attack loading for constrained hosted GPUs.
-- Clean and condition-level thresholds, prompt-clustered calibration-FPR CIs,
-  held-out complete-case/all-available results, and paired scheme differences.
-- Resumable completion/failure/attack ledgers and a report-data builder that
-  rejects pilot or non-confirmatory artifacts.
-- A Colab notebook that checks the preregistration freeze, pauses for masked
-  credential entry, runs the pilot, verifies ledger completeness, and bundles
-  the result directory.
+P1's non-compute implementation is complete and pushed. P2's report structure,
+mobile interactive, portfolio draft, and deployment configuration are also
+built and locally verified without inventing an extension result. The project
+is not complete: no pinned-model pilot, confirmatory SynthID run, fresh H1
+paraphrase replication, quality analysis, merge, or deployment has occurred.
 
-No Gemma, Llama, SynthID, or new attack result was produced.
+## P2 artifacts
+
+- `REPORT.md`: paper-structured methods report with verified baseline values,
+  current Commission sources, interpretation rules, limitations, and a blocked
+  extension table.
+- `site/`: warm-paper editorial interactive with the preserved baseline chart,
+  live paste/edit score, four transformation controls, before/after panels,
+  and study-design walkthrough.
+- `vercel.json`: static routing prepared but not deployed.
+- `PORTFOLIO_ENTRY_DRAFT.md`: updated draft with an explicit publication hold.
+
+The browser lab labels its word-level score as a mechanics demonstrator. It
+does not claim to run the benchmark tokenizer/detector, execute an LLM or real
+translation, report SynthID performance, or determine legal compliance.
 
 ## Verification
 
-| Evidence | Result |
+| Check | Result |
 | --- | --- |
-| P1 detector/protocol/attack tests | 20 passed |
-| New Python entry points | compile successfully |
-| Frozen attack manifest | 33 unique conditions: 23 deterministic, 10 model-backed |
-| Baseline cache check | 17/17 artifact hashes and preserved values reproduce |
-| Local preflight | stops as designed: no CUDA and no authenticated gated-model session |
-| Colab notebook | 15 cells; valid notebook JSON and Python syntax |
-| Dataset packaging | all three public repositories verified as Parquet and pinned at immutable upstream revisions |
+| Full test suite | 24 passed |
+| Baseline reproduction | 17/17 hashes; 90.0%, 98.0%, and historical 27.3% reproduced |
+| Report-data builder | rejects pilot/non-confirmatory artifacts; empty extension table is not committed as a result stub |
+| JavaScript | `node --check` passed |
+| Desktop browser | live score and all transformation controls work |
+| Mobile browser | 390×844, zero horizontal overflow, four usable attack controls |
+| Browser console | zero current errors or warnings |
+| Translation proxy smoke test | score changed 9.75→0.72 and before/after copy updated |
+| Public claims | no SynthID result; all displayed numbers trace to preserved cache artifacts |
 
-## Remaining P1 work
+## Current manual gates
 
-The pilot and full Gemma suite require two resources Codex cannot silently
-cross:
+1. **Credentials:** Colab is open at Google's sign-in screen. Ali must sign in,
+   then personally enter a masked read-only Hugging Face token in the notebook.
+2. **Compute deviation:** if a no-cost GPU cannot load the exact frozen Gemma
+   configuration, stop. Quantization, substitution, or paid compute requires a
+   new decision.
+3. **Merge:** draft PR #3 remains unmerged.
+4. **Publication/deployment:** the site and portfolio copy remain local/draft.
+   Deploying or publishing under Ali's name requires his explicit go.
 
-1. Ali enters a read-only Hugging Face token that already has access to the
-   pinned Gemma repository.
-2. A no-cost hosted CUDA runtime loads the exact frozen configuration.
+## Recommended next sequence
 
-If the runtime requires quantization or any model/configuration change, stop
-and issue a deviation brief. The pilot is engineering evidence only and never
-enters confirmatory tables.
-
-## Personal action requested
-
-Open `output/jupyter-notebook/article50_gemma_pilot.ipynb` in Colab, select a
-GPU runtime, and personally complete the masked Hugging Face login cell. After
-that step Codex can use computer control to run and monitor the remaining
-cells, collect the artifact ZIP, and continue automatically.
+1. Complete the two sign-ins and run the 20-prompt pilot.
+2. If unchanged configuration succeeds, run the full Gemma suite and populate
+   its headline table from caches.
+3. Run the Llama suite, fresh H1 replication, attacks, and quality analysis.
+4. Re-run report/site checks with real confirmatory tables.
+5. Submit the compliance-framing and publication gate for independent review,
+   then ask Ali for merge/deploy authorization.

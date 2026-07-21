@@ -73,14 +73,32 @@ Implemented in P1 before compute:
 - 1% empirical threshold calibration with strict ties-count-as-missed behavior;
 - prompt-clustered bootstrap interval for realized calibration FPR;
 - held-out clean TPR/FPR intervals and a quarantined 20-prompt pilot runner.
+- all 33 frozen attack conditions, including one-model-at-a-time loading for
+  no-cost GPU memory constraints;
+- condition-level complete-case and all-available results;
+- paired SynthID-minus-Kirchenbauer bootstrap differences;
+- pinned immutable revisions for all three prompt datasets;
+- a Colab notebook that verifies the preregistration freeze, runs the pilot,
+  checks ledger completeness, and bundles artifacts.
+
+Implemented in P2 before results:
+
+- a paper-structured `REPORT.md` with current Commission sources, verified
+  baseline numbers, fixed interpretation rules, and blocked extension tables;
+- a mobile editorial interactive with a paste/edit lab, transformation buttons,
+  before/after scores, baseline chart, and methods walkthrough;
+- a cache-to-report builder that rejects pilot and non-confirmatory artifacts.
+
+The browser lab deliberately uses a word-level keyed demonstrator. It teaches
+why edits disrupt local statistical evidence without pretending to be the
+Gemma/Llama token detector. The disclosure appears next to the controls.
 
 Still not complete:
 
 - a SynthID generation or score result;
-- any new attack run;
+- any new model-backed or confirmatory attack run;
 - reproduction of the 27.3% paraphrase result;
-- Article 50 report;
-- interactive page;
+- populated Article 50 extension tables;
 - deployment.
 
 Do not describe this as a completed SynthID evaluation until those artifacts exist.
