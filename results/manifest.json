@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "source": "committed coursework artifacts on repository main",
+  "verified_on": "2026-07-18",
+  "files": [
+    {"path": "corpus_gemma_d0.5.jsonl", "sha256": "f0211d05e5ec862b7c35e1ecfa1ba93fb0f2284f0a6344f9185893aa3059278b"},
+    {"path": "corpus_gemma_d1.0.jsonl", "sha256": "f3153a126c149edafeae255e15c02afaca6daa1d5a3c67769bb2dd2c49d9276d"},
+    {"path": "corpus_gemma_d2.jsonl", "sha256": "cf7913332542100cb3d9c0a76147d5572996380efd3cf071eacbb0d43054b2a4"},
+    {"path": "corpus_gemma_d4.0.jsonl", "sha256": "83817038dbd89bc652cd594e6502dd364fea944f0894b48aa3c114e112442e3d"},
+    {"path": "corpus_gemma_d8.0.jsonl", "sha256": "c1e492bcbcbe04cecfda2f1d16f537a82c4083b14cc4ede974873282d56c45b7"},
+    {"path": "corpus_llama_d2.jsonl", "sha256": "3d86d680c075264af34ae3d0d5c3469543990bff58f1856c496230e62260c745"},
+    {"path": "delta_sweep_gemma.json", "sha256": "a20ace857d5b9df29c5ad1186b8a51c11471ae05a2b04052534c3fbdabd8697c"},
+    {"path": "detection_gemma_summary.json", "sha256": "1f539d47778828aa9dc9a55a8dacdd535fe48fccee945814e50db7a37058dcb8"},
+    {"path": "detection_gemma_zscores.npz", "sha256": "574ba45aa803ad25f9b549e3d3e88cc1521305692cae1b65f61a829bbf6352bd"},
+    {"path": "detection_llama_summary.json", "sha256": "2eb5f265f8604efada743b63ea45763ad988d75e760b5b85c0f65f737f37bd4f"},
+    {"path": "detection_llama_zscores.npz", "sha256": "d91f72411e736cefe0b943e94e9d87e9e645613b79896bfe21aa905761138760"},
+    {"path": "length_curves_gemma.json", "sha256": "383d782a768c774449187c32a9721c8fbac8b3890998641101a1ec8a4eeb9be6"},
+    {"path": "length_curves_llama.json", "sha256": "062de3b35c2c750abea6f2fd68e0481ab50f1a552242bc2f8010b70d77f47940"},
+    {"path": "robustness_gemma.json", "sha256": "2906d7629a1f25d25d2199c79550a6965476df35821841248f1c634699c7ef92"},
+    {"path": "robustness_gemma_zscores.npz", "sha256": "4e9c73b267106eccda2d09c8c66ed5c1cdb1fd7763221534c7ae42acf6777547"},
+    {"path": "robustness_llama.json", "sha256": "8e0495c58c0e97c9f7ca2e5d425bf667f4392119250bcc64b61bb36f655bbb79"},
+    {"path": "robustness_llama_zscores.npz", "sha256": "9c52bf063b079225cb0af59cd197a022465b772260000994343c4bb0f595212c"}
+  ]
+}

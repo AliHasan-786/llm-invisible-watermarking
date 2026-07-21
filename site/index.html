@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore how statistical text watermark evidence changes under editing, alongside a preregistered Article 50 robustness study.">
+    <title>Watermark Under Article 50</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23171714'/%3E%3Ctext x='5' y='23' fill='%23f3efe5' font-size='20'%3EW%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="wordmark" href="#top">Watermark / 50</a>
+      <nav aria-label="Page sections">
+        <a href="#evidence">Evidence</a>
+        <a href="#lab">Try the signal</a>
+        <a href="#method">Method</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero rule-bottom">
+        <p class="eyebrow">Independent robustness evaluation · preregistered</p>
+        <h1>“Detectable” needs an operating point.</h1>
+        <p class="dek">A watermark can look reliable in clean text and disappear after a rewrite. This study compares two open-source watermark schemes at no more than 1% empirical false positives—then edits, translates, truncates, and launders the evidence.</p>
+        <div class="status-line" role="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span><strong>Current evidence:</strong> preserved Kirchenbauer baseline. SynthID extension pending gated compute.</span>
+        </div>
+      </section>
+
+      <section id="evidence" class="section rule-bottom">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">01 · Evidence on disk</p>
+            <h2>Clean detection was strong. Rewriting was the warning.</h2>
+          </div>
+          <p class="aside">Coursework baseline, reproduced from committed score arrays. These are not SynthID results.</p>
+        </div>
+
+        <div class="chart" aria-label="Preserved baseline true positive rates at one percent false positive rate">
+          <div class="axis-label">TPR at declared 1% FPR</div>
+          <div class="bar-row">
+            <div class="bar-label"><strong>Gemma 2 9B</strong><span>Clean · Kirchenbauer</span></div>
+            <div class="track"><div class="bar" style="--value:90%"><span>90.0%</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><strong>Llama 3.1 8B</strong><span>Clean · Kirchenbauer</span></div>
+            <div class="track"><div class="bar" style="--value:98%"><span>98.0%</span></div></div>
+          </div>
+          <div class="bar-row warning-row">
+            <div class="bar-label"><strong>Llama 3.1 8B</strong><span>Historical LLM paraphrase</span></div>
+            <div class="track"><div class="bar" style="--value:27.3%"><span>27.3%</span></div></div>
+          </div>
+          <div class="reference" aria-hidden="true"><span>80% study reference</span></div>
+        </div>
+        <p class="source-note">The 27.3% value is reproducible from cached z-scores, but its rewritten texts are absent. The preregistration requires a fresh ±5 percentage-point reproduction before it becomes a new public finding.</p>
+      </section>
+
+      <section id="lab" class="section lab-section rule-bottom">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">02 · Browser mechanics lab</p>
+            <h2>Edit the passage. Watch statistical evidence move.</h2>
+          </div>
+          <p class="aside">This word-level demonstrator teaches the detector math. It is not the token-level benchmark and produces no study result.</p>
+        </div>
+
+        <div class="lab-grid">
+          <div class="editor-panel">
+            <div class="panel-topline">
+              <label for="sampleText">Passage</label>
+              <button class="text-button" id="generateButton" type="button">Generate marked sample</button>
+            </div>
+            <textarea id="sampleText" rows="13" spellcheck="true" aria-describedby="labDisclosure"></textarea>
+            <div class="attack-buttons" aria-label="Demonstration transformations">
+              <button type="button" data-attack="light">Light edit</button>
+              <button type="button" data-attack="paraphrase">Paraphrase proxy</button>
+              <button type="button" data-attack="translate">Translation proxy</button>
+              <button type="button" data-attack="truncate">Cut to half</button>
+            </div>
+            <p id="labDisclosure" class="disclosure">Proxy buttons use deterministic browser transformations, not an LLM or translation model. Confirmatory attacks run separately from frozen model revisions.</p>
+          </div>
+
+          <div class="score-panel" aria-live="polite">
+            <p class="score-label">Demonstration z-score</p>
+            <div class="score-value" id="scoreValue">0.00</div>
+            <div class="verdict" id="verdict">Not enough text</div>
+            <dl class="score-details">
+              <div><dt>Scored words</dt><dd id="wordCount">0</dd></div>
+              <div><dt>Green hits</dt><dd id="greenHits">0</dd></div>
+              <div><dt>Demo threshold</dt><dd>2.33</dd></div>
+            </dl>
+            <div class="comparison">
+              <div><span>Before</span><strong id="beforeScore">—</strong></div>
+              <div><span>After</span><strong id="afterScore">—</strong></div>
+              <p id="deltaCopy">Choose a transformation to compare scores.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="method" class="section rule-bottom">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">03 · Study design</p>
+            <h2>The false-positive threshold is chosen before the test.</h2>
+          </div>
+        </div>
+        <div class="method-grid">
+          <article><span>1</span><h3>Calibrate</h3><p>Three unwatermarked completions per calibration prompt define each detector's threshold. Prompt-clustered bootstrap intervals keep those triplets together.</p></article>
+          <article><span>2</span><h3>Hold out</h3><p>Matched control, Kirchenbauer, and SynthID generations use the same prompt seed. Held-out outputs never select the threshold.</p></article>
+          <article><span>3</span><h3>Attack</h3><p>Thirty-three fixed conditions cover edits, partial text, two paraphrasers, two translation pivots, and regenerate-from-summary laundering.</p></article>
+          <article><span>4</span><h3>Report either way</h3><p>TPR, realized FPR, uncertainty, failures, and quality all ship. The measurement informs policy discussion; it does not pronounce legal compliance.</p></article>
+        </div>
+      </section>
+
+      <section class="section caveat">
+        <p class="eyebrow">Scope</p>
+        <p>Two English-language models. Open-source SynthID, not Google's production deployment. Author-run attacks. Hundreds—not tens of thousands—of calibration controls. No legal advice.</p>
+        <div class="links"><a href="../REPORT.md">Read the report</a><a href="../PREREGISTRATION.md">Read the frozen protocol</a><a href="../DATA_PROVENANCE.md">Trace the data</a></div>
+      </section>
+    </main>
+
+    <footer><span>Ali Hasan · Cornell Tech</span><span>Methods before claims.</span></footer>
+    <script src="app.js"></script>
+  </body>
+</html>
