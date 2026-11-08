@@ -38,23 +38,16 @@
           <p class="aside">Coursework baseline, reproduced from committed score arrays. These are not SynthID results.</p>
         </div>
 
-        <div class="chart" aria-label="Preserved baseline true positive rates at one percent false positive rate">
-          <div class="axis-label">TPR at declared 1% FPR</div>
-          <div class="bar-row">
-            <div class="bar-label"><strong>Gemma 2 9B</strong><span>Clean · Kirchenbauer</span></div>
-            <div class="track"><div class="bar" style="--value:90%"><span>90.0%</span></div></div>
+        <div class="replay" data-historical-replay>
+          <div class="replay-controls">
+            <label>Model<select id="replayModel"><option value="gemma">Gemma 2 9B</option><option value="llama">Llama 3.1 8B</option></select></label>
+            <label>Evidence view<select id="replayView"><option value="clean">Clean scores</option><option value="length">Length cells</option><option value="edit">Edit cells</option></select></label>
+            <label id="replayCellLabel" hidden>Measured cell<select id="replayCell"></select></label>
           </div>
-          <div class="bar-row">
-            <div class="bar-label"><strong>Llama 3.1 8B</strong><span>Clean · Kirchenbauer</span></div>
-            <div class="track"><div class="bar" style="--value:98%"><span>98.0%</span></div></div>
-          </div>
-          <div class="bar-row warning-row">
-            <div class="bar-label"><strong>Llama 3.1 8B</strong><span>Historical LLM paraphrase</span></div>
-            <div class="track"><div class="bar" style="--value:27.3%"><span>27.3%</span></div></div>
-          </div>
-          <div class="reference" aria-hidden="true"><span>80% study reference</span></div>
+          <div id="replayStatus" class="replay-status" role="status">Verifying cached evidence…</div>
+          <div id="replayPanel" class="replay-panel" aria-live="polite"></div>
         </div>
-        <p class="source-note">The 27.3% value is reproducible from cached z-scores, but its rewritten texts are absent. The preregistration requires a fresh ±5 percentage-point reproduction before it becomes a new public finding.</p>
+        <p class="source-note">Replay values load from a deterministic export of all 17 hash-verified cache artifacts. Historical thresholds did not preserve a calibration/held-out split; length cells recalibrated at each length. The 27.3% Llama paraphrase value is reproducible from scores, but its rewritten texts are absent. None is confirmatory SynthID evidence.</p>
       </section>
 
       <section id="lab" class="section lab-section rule-bottom">

@@ -17,6 +17,8 @@ def test_site_has_required_interactions_and_honest_scope():
         "SynthID extension pending gated compute",
         "not the token-level benchmark",
         "does not pronounce legal compliance",
+        "data-historical-replay",
+        "None is confirmatory SynthID evidence",
     ):
         assert required in html
 
@@ -43,3 +45,4 @@ def test_vercel_config_routes_static_site():
     rewrites = {item["source"]: item["destination"] for item in config["rewrites"]}
     assert rewrites["/"] == "/site/index.html"
     assert rewrites["/app.js"] == "/site/app.js"
+    assert rewrites["/historical-replay.json"] == "/site/data/historical_replay.json"

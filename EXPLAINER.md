@@ -8,7 +8,7 @@ Language-model watermarking changes token sampling so generated text carries a s
 
 The course project implemented the Kirchenbauer green-list scheme. It partitions the vocabulary into a pseudorandom "green" half at every generation step and adds a logit bias to those tokens. Detection replays the partition, counts green hits, and converts the excess into a z-score. The preserved baseline reached 90.0% TPR at a nominal 1% FPR on Gemma 2 9B and 98.0% on Llama 3.1 8B. The cached Llama paraphrase z-scores reproduce the report's 27.3% TPR exactly, although the paraphrased texts needed to replay the attack did not survive.
 
-The extension asks whether SynthID-Text, a newer tournament-sampling watermark deployed in the Google ecosystem and available in open source, degrades more gracefully. The policy hook is Article 50(2) of the EU AI Act, which makes "detectable" and "robust" operationally important without supplying a universal numeric threshold.
+The extension asks whether the open-source SynthID-Text implementation degrades more gracefully. As of the November 2026 closest-work review, that comparison alone is not novel: EntroBench and *The Provenance Horizon* already evaluate SynthID under tasks, edits, lengths, and controlled false-positive operating points. The narrower useful question is how one clean, frozen threshold transfers across task, length, and edit shift compared with condition-specific recalibration. That is a secondary analysis, not a change to the frozen July primary protocol. The policy hook remains Article 50(2) of the EU AI Act, but the project measures detectability and never determines legal compliance.
 
 ## Architecture
 
@@ -93,6 +93,11 @@ Implemented in P2 before results:
 - paired GPT-2 perplexity/length summaries with the fixed 1.15 H5 decision;
 - a source-and-scheme-balanced 60-pair blinded readability queue with 20
   deterministic second-review overlaps and a separate answer key.
+- a deterministic historical-evidence exporter and browser replay backed by all
+  17 SHA-256-verified coursework artifacts; missing cells fail closed as
+  `not_run`/`null` and no prompt or completion text is duplicated;
+- a dated November 2026 closest-work review that retires first-evaluation and
+  unsupported adoption claims.
 
 The browser lab deliberately uses a word-level keyed demonstrator. It teaches
 why edits disrupt local statistical evidence without pretending to be the

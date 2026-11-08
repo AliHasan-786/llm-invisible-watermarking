@@ -4,6 +4,7 @@
   "rewrites": [
     { "source": "/", "destination": "/site/index.html" },
     { "source": "/styles.css", "destination": "/site/styles.css" },
-    { "source": "/app.js", "destination": "/site/app.js" }
+    { "source": "/app.js", "destination": "/site/app.js" },
+    { "source": "/historical-replay.json", "destination": "/site/data/historical_replay.json" }
   ]
 }

@@ -1,4 +1,4 @@
-.PHONY: test reproduce-baseline check
+.PHONY: test reproduce-baseline export-replay check-replay check
 PYTHON ?= python3
 
 test:
@@ -7,4 +7,10 @@ test:
 reproduce-baseline:
 	$(PYTHON) scripts/reproduce_baseline.py
 
-check: test reproduce-baseline
+export-replay:
+	$(PYTHON) scripts/export_historical_replay.py
+
+check-replay:
+	$(PYTHON) scripts/export_historical_replay.py --check
+
+check: test reproduce-baseline check-replay

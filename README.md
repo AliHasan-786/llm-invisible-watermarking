@@ -6,7 +6,7 @@ The policy question is deliberately narrow: when Article 50 asks providers to ma
 
 ## Status
 
-Phase P0 is complete. P1's execution code is complete: the pinned SynthID adapter, immutable prompt revisions, tripled calibration controls, 33-condition attack matrix, detector scoring, paired comparison, cache-to-report builder, resumable ledgers, and one-click quarantined pilot notebook are implemented and tested. P2's ROC/DET, fixed operating-point, pinned quality, blinded readability, report, and mobile-interactive pipelines are also built, but remain undeployed and contain no SynthID result. The pilot is blocked locally because this machine has no CUDA GPU and is not logged in to the gated Hugging Face model repository. No login, paid compute, merge, or deployment was attempted.
+Phase P0 is complete. P1's execution code is complete: the pinned SynthID adapter, immutable prompt revisions, tripled calibration controls, 33-condition attack matrix, detector scoring, paired comparison, cache-to-report builder, resumable ledgers, and one-click quarantined pilot notebook are implemented and tested. P2's ROC/DET, fixed operating-point, pinned quality, blinded readability, report, and mobile-interactive pipelines are also built, but remain undeployed and contain no SynthID result. A November 2026 closest-work review narrows the defensible contribution to clean-threshold transfer under task, length, and edit shift; it retires any “first evaluation” framing. The pilot remains unrun. No login, inference, paid compute, merge, or deployment was attempted.
 
 Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689), the Commission's [20 July 2026 implementation guidelines](https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems), and its [final Code of Practice announcement](https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content).
 
@@ -21,7 +21,7 @@ python3 -m pip install -r requirements.txt
 make check
 ```
 
-`make check` runs detector-math tests, verifies every cached artifact against its SHA-256 digest, validates corpus metadata, and recomputes headline detection and robustness statistics from cached z-score arrays. It downloads no models.
+`make check` runs detector-math tests, verifies every cached artifact against its SHA-256 digest, validates corpus metadata, recomputes headline detection and robustness statistics from cached z-score arrays, and verifies the deterministic browser replay. It downloads no models. Missing replay cells, SynthID, and confirmatory results remain `not_run`/`null`; see `docs/HISTORICAL_REPLAY_CONTRACT.md` and `CONTRIBUTION_REVIEW_2026-11-08.md`.
 
 The CI workflow is staged at `docs/ci/quality.yml` because the repository token may not have GitHub Actions workflow scope. Activate it from an appropriately scoped session with:
 
