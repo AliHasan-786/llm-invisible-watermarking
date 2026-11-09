@@ -1,0 +1,61 @@
+{
+  "contractVersion": 1,
+  "id": "watermarking",
+  "title": "Text Provenance Lab",
+  "course": "CS 5788 Introduction to Generative Models",
+  "semester": "Spring 2026",
+  "oneLine": "Inspect hash-verified historical watermark detector evidence across models, lengths, and edits, then trace the frozen protocol for a planned comparison.",
+  "themes": [
+    "Engineering",
+    "Data",
+    "Research Methods",
+    "AI Safety"
+  ],
+  "role": "Ali Hasan — watermark implementation, evaluation design, evidence replay, and editorial interaction",
+  "status": "release-candidate",
+  "evidenceStage": "coursework",
+  "primaryMetric": null,
+  "demoUrl": null,
+  "repoUrl": "https://github.com/AliHasan-786/llm-invisible-watermarking",
+  "writeupUrl": "https://github.com/AliHasan-786/llm-invisible-watermarking/blob/codex/watermark-p0/REPORT.md",
+  "thumbnail": "assets/text-provenance-lab-thumbnail.svg",
+  "thumbnailAlt": "Historical watermark replay showing 90.0 percent Gemma clean TPR, 98.0 percent Llama clean TPR, and a 27.3 percent Llama paraphrase scores-only result.",
+  "featured": false,
+  "release": {
+    "commit": null,
+    "checkedAt": "2026-11-08",
+    "publicationStatus": "coordinator-review"
+  },
+  "evidence": [
+    {
+      "id": "historical-gemma-clean-tpr",
+      "label": "Gemma clean TPR at historical threshold",
+      "value": 0.900497512437811,
+      "display": "90.0% (181/201)",
+      "artifact": "results/detection_gemma_summary.json",
+      "scoreArtifact": "results/detection_gemma_zscores.npz",
+      "manifest": "results/manifest.json",
+      "scope": "Historical coursework replay; threshold was not preserved with a calibration/held-out split"
+    },
+    {
+      "id": "historical-llama-clean-tpr",
+      "label": "Llama clean TPR at historical threshold",
+      "value": 0.9797979797979798,
+      "display": "98.0% (97/99)",
+      "artifact": "results/detection_llama_summary.json",
+      "scoreArtifact": "results/detection_llama_zscores.npz",
+      "manifest": "results/manifest.json",
+      "scope": "Historical coursework replay; threshold was not preserved with a calibration/held-out split"
+    },
+    {
+      "id": "historical-llama-paraphrase-tpr",
+      "label": "Llama LLM-paraphrase TPR at historical clean threshold",
+      "value": 0.2727272727272727,
+      "display": "27.3% (27/99)",
+      "artifact": "results/robustness_llama.json",
+      "scoreArtifact": "results/robustness_llama_zscores.npz",
+      "manifest": "results/manifest.json",
+      "scope": "Historical scores only; transformed text is unavailable and the attack cannot be reconstructed"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "buildCommand": "python3 scripts/build_static_site.py",
+  "outputDirectory": "dist",
+  "cleanUrls": false,
+  "trailingSlash": false
+}

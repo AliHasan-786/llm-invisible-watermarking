@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Inspect hash-verified historical text-watermark detector evidence across models, lengths, and edits, with a separate mechanics demonstrator.">
+    <meta property="og:title" content="Text Provenance Lab">
+    <meta property="og:description" content="A transparent replay of preserved watermark detector evidence—plus the frozen protocol for a planned comparison.">
+    <meta property="og:image" content="/assets/text-provenance-lab-thumbnail.svg">
+    <title>Text Provenance Lab · Historical evidence replay</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23171714'/%3E%3Ctext x='5' y='23' fill='%23f3efe5' font-size='20'%3EW%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="wordmark" href="#top">Text Provenance Lab</a>
+      <nav aria-label="Page sections">
+        <a href="#evidence">Evidence</a>
+        <a href="#lab">Mechanics demo</a>
+        <a href="#method">Planned study</a>
+        <a href="https://github.com/AliHasan-786/llm-invisible-watermarking">Source</a>
+        <a href="https://ali-hasan-ai.vercel.app">Portfolio</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero rule-bottom">
+        <p class="eyebrow">Completed historical replay · planned comparison kept separate</p>
+        <h1>Text Provenance Lab</h1>
+        <p class="dek">Inspect preserved detector scores from a completed coursework watermark study across two models, eight text lengths, and recorded edit conditions. A separate preregistered protocol plans a future Kirchenbauer–SynthID comparison; no SynthID or confirmatory result exists yet.</p>
+        <div class="status-line" role="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span><strong>Available now:</strong> hash-verified historical Kirchenbauer evidence. <strong>Not run:</strong> the planned SynthID extension and confirmatory Article 50 evaluation.</span>
+        </div>
+      </section>
+
+      <section id="evidence" class="section rule-bottom">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">01 · Evidence on disk</p>
+            <h2>Clean detection was strong. Rewriting was the warning.</h2>
+          </div>
+          <p class="aside">Coursework baseline replayed from committed score arrays. Select a model and evidence view; every denominator and scale is shown.</p>
+        </div>
+
+        <div class="replay" data-historical-replay>
+          <div class="replay-controls">
+            <label>Model<select id="replayModel"><option value="gemma">Gemma 2 9B</option><option value="llama">Llama 3.1 8B</option></select></label>
+            <label>Evidence view<select id="replayView"><option value="clean">Clean scores</option><option value="length">Length cells</option><option value="edit">Edit cells</option></select></label>
+            <label id="replayCellLabel" hidden>Measured cell<select id="replayCell"></select></label>
+          </div>
+          <div id="replayStatus" class="replay-status" role="status">Loading and validating the saved replay contract…</div>
+          <div id="replayPanel" class="replay-panel" aria-live="polite"></div>
+        </div>
+        <p class="source-note">The deterministic exporter—not this browser—verified all 17 source-artifact hashes and checked summaries against score arrays before writing the replay contract. The browser validates that contract and fails closed. Historical thresholds did not preserve a calibration/held-out split; length cells recalibrated at each length. The Llama paraphrase score series survives, but its rewritten texts are unavailable. <a href="/docs/HISTORICAL_REPLAY_CONTRACT.md">Read the contract</a>.</p>
+      </section>
+
+      <section id="lab" class="section lab-section demo-section rule-bottom">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">02 · Illustrative mechanics · separate from measured evidence</p>
+            <h2>See why local token choices matter.</h2>
+          </div>
+          <p class="aside"><strong>Demo only.</strong> This word-level toy teaches the detector math. It is not the cached detector, a model run, or a study result.</p>
+        </div>
+
+        <div class="lab-grid">
+          <div class="editor-panel">
+            <div class="panel-topline">
+              <label for="sampleText">Illustrative passage</label>
+              <button class="text-button" id="generateButton" type="button">Reset demo sample</button>
+            </div>
+            <textarea id="sampleText" rows="13" spellcheck="true" aria-describedby="labDisclosure"></textarea>
+            <div class="attack-buttons" aria-label="Demonstration transformations">
+              <button type="button" data-attack="light">Light edit</button>
+              <button type="button" data-attack="paraphrase">Paraphrase proxy</button>
+              <button type="button" data-attack="translate">Translation proxy</button>
+              <button type="button" data-attack="truncate">Cut to half</button>
+            </div>
+            <p id="labDisclosure" class="disclosure"><strong>Mechanics demonstrator:</strong> proxy buttons use deterministic browser word transformations, not the repository tokenizer, detector, an LLM, or a translation model. Nothing here changes or measures the historical evidence above.</p>
+          </div>
+
+          <div class="score-panel" aria-live="polite">
+            <p class="score-label">Toy word-pair z-score · demo only</p>
+            <div class="score-value" id="scoreValue">0.00</div>
+            <div class="verdict" id="verdict">Not enough text</div>
+            <dl class="score-details">
+              <div><dt>Scored words</dt><dd id="wordCount">0</dd></div>
+              <div><dt>Green hits</dt><dd id="greenHits">0</dd></div>
+              <div><dt>Demo threshold</dt><dd>2.33</dd></div>
+            </dl>
+            <div class="comparison">
+              <div><span>Before</span><strong id="beforeScore">—</strong></div>
+              <div><span>After</span><strong id="afterScore">—</strong></div>
+              <p id="deltaCopy">Choose a transformation to compare scores.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="method" class="section rule-bottom">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">03 · Frozen future protocol · not yet executed</p>
+            <h2>The planned comparison chooses thresholds before testing.</h2>
+          </div>
+        </div>
+        <div class="method-grid">
+          <article><span>1</span><h3>Calibrate</h3><p>Three unwatermarked completions per calibration prompt define each detector's threshold. Prompt-clustered bootstrap intervals keep those triplets together.</p></article>
+          <article><span>2</span><h3>Hold out</h3><p>Matched control, Kirchenbauer, and SynthID generations use the same prompt seed. Held-out outputs never select the threshold.</p></article>
+          <article><span>3</span><h3>Attack</h3><p>Thirty-three fixed conditions cover edits, partial text, two paraphrasers, two translation pivots, and regenerate-from-summary laundering.</p></article>
+          <article><span>4</span><h3>Report either way</h3><p>TPR, realized FPR, uncertainty, failures, and quality all ship. The measurement informs policy discussion; it does not pronounce legal compliance.</p></article>
+        </div>
+      </section>
+
+      <section class="section caveat">
+        <p class="eyebrow">Scope</p>
+        <p>The completed replay covers two English-language models and one Kirchenbauer-style scheme. The planned study would test an open-source SynthID implementation—not Google's production deployment—with author-run attacks and hundreds, not tens of thousands, of calibration controls. No legal advice.</p>
+        <div class="links"><a href="/REPORT.md">Historical report</a><a href="/PREREGISTRATION.md">Frozen future protocol</a><a href="/DATA_PROVENANCE.md">Data provenance</a><a href="https://github.com/AliHasan-786/llm-invisible-watermarking">Source repository</a><a href="https://ali-hasan-ai.vercel.app">Return to portfolio</a></div>
+      </section>
+    </main>
+
+    <footer><span>Ali Hasan · Cornell Tech</span><span>Historical replay · future study unrun</span></footer>
+    <script src="replay_contract.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
