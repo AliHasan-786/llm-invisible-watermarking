@@ -96,7 +96,7 @@ Implemented in P2 before results:
 - a deterministic historical-evidence exporter and browser replay backed by all
   17 SHA-256-verified coursework artifacts; missing cells fail closed as
   `not_run`/`null` and no prompt or completion text is duplicated;
-- a release-candidate **Text Provenance Lab** interface with one fixed z-score
+- a production **Text Provenance Lab** interface with one fixed z-score
   scale across models/conditions, a fixed 0–100% rate scale, denominators,
   accessible numeric tables, and separate unavailable versus not-run states;
 - a deterministic allowlisted 12-file public package whose build verifies the
@@ -116,13 +116,30 @@ from the score arrays, requires positive integer counts and the exact expected
 cell identities, and rejects contradictions instead of trusting copied summary
 fields.
 
+The historical replay is deployed at
+`https://text-provenance-lab.vercel.app`. Its independently reviewed source is
+commit `e794de3`, merged to `main` as `27f3f89`. Vercel project
+`text-provenance-lab` publishes only the allowlisted `dist/` package. The repo's
+`vercel.json` sets `installCommand` to `true`, which is deliberate: the static
+site builder uses only the Python standard library, so installing the research
+requirements would waste time and could pull multi-gigabyte Torch/CUDA wheels.
+An initial automatic deployment exposed that risk and was canceled; the ready
+production deployment was then built with dependency installation disabled.
+
+The GitHub workflow named **public release offline smoke** checks the release
+boundary without installing project dependencies. It verifies the 17 source
+hashes through the static builder, tests the browser contract, checks JavaScript
+syntax, and confirms the Vercel guard. It is not the scientific suite: local
+`make check` still owns detector math, NumPy cache reproduction, and replay
+freshness.
+
 Still not complete:
 
 - a SynthID generation or score result;
 - any new model-backed or confirmatory attack run;
-- reproduction of the 27.3% paraphrase result;
+- fresh reproduction of the 27.3% paraphrase attack from transformed text;
 - populated Article 50 extension tables;
-- deployment.
+- the planned SynthID/confirmatory scientific result.
 
 Do not describe this as a completed SynthID evaluation until those artifacts exist.
 

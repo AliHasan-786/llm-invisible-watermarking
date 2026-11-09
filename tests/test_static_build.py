@@ -81,6 +81,7 @@ def test_static_package_is_exact_allowlist_without_raw_or_backend_files(tmp_path
 
 def test_vercel_builds_only_the_allowlisted_output_directory():
     config = json.loads((REPO / "vercel.json").read_text(encoding="utf-8"))
+    assert config["installCommand"] == "true"
     assert config["buildCommand"] == "python3 scripts/build_static_site.py"
     assert config["outputDirectory"] == "dist"
     assert "rewrites" not in config

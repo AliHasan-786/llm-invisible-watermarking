@@ -1,7 +1,7 @@
 # Text Provenance Lab
 
 A historical evidence replay and evaluation harness for text watermarking. The
-release candidate lets visitors inspect preserved Kirchenbauer detector scores
+production site lets visitors inspect preserved Kirchenbauer detector scores
 across two models, text lengths, and edit conditions. A separate frozen protocol,
 **Watermark Under Article 50**, plans a future comparison with open-source
 SynthID-Text and an unwatermarked control; that pilot and confirmatory study have
@@ -15,7 +15,8 @@ comparison, offer legal advice, or establish compliance.
 
 ## Status
 
-The historical replay is a local release candidate with deterministic export,
+The historical replay is live at
+[`text-provenance-lab.vercel.app`](https://text-provenance-lab.vercel.app), with deterministic export,
 fixed comparison scales, accessible numeric tables, licensed thumbnail,
 portfolio metadata, and a deterministic allowlisted static release package.
 Phase P0 is complete. P1's execution code is complete: the
@@ -25,8 +26,9 @@ cache-to-report builder, resumable ledgers, and one-click quarantined pilot
 notebook are implemented and tested. P2's analysis pipelines are built, but
 contain no SynthID result. A November 2026 closest-work review narrows the
 defensible contribution to clean-threshold transfer under task, length, and edit
-shift; it retires any “first evaluation” framing. The pilot remains unrun. No
-login, inference, paid compute, merge, or deployment was attempted.
+shift; it retires any “first evaluation” framing. The pilot remains unrun. The
+historical replay was merged and deployed without model login, inference, paid
+compute, or any change to the frozen scientific protocol.
 
 Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689), the Commission's [20 July 2026 implementation guidelines](https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems), and its [final Code of Practice announcement](https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content).
 
@@ -43,13 +45,12 @@ make check
 
 `make check` runs detector-math tests, verifies every cached artifact against its SHA-256 digest, validates corpus metadata, recomputes headline detection and robustness statistics from cached z-score arrays, and verifies the deterministic browser replay. It downloads no models. Missing replay cells, SynthID, and confirmatory results remain `not_run`/`null`; see `docs/HISTORICAL_REPLAY_CONTRACT.md` and `CONTRIBUTION_REVIEW_2026-11-08.md`.
 
-The CI workflow is staged at `docs/ci/quality.yml` because the repository token may not have GitHub Actions workflow scope. Activate it from an appropriately scoped session with:
-
-```bash
-mkdir -p .github/workflows
-cp docs/ci/quality.yml .github/workflows/quality.yml
-git add .github/workflows/quality.yml
-```
+`.github/workflows/public-release.yml` runs a dependency-free public-release
+smoke check on pushes to `main` and pull requests. It verifies all 17 source
+hashes while building the exact allowlisted package, runs the production browser
+contract tests, checks shipped JavaScript syntax, and enforces the static-only
+Vercel guard. It intentionally does not install `requirements.txt` or claim to
+replace the full scientific `make check` suite.
 
 Preserved results from the original Kirchenbauer-style implementation:
 
@@ -95,7 +96,7 @@ Each clean headline artifact records the target FPR, threshold, realized
 calibration FPR and its prompt-clustered bootstrap interval, held-out TPR/FPR
 and intervals, sample counts, and strict tie rule.
 
-[Open the one-click Gemma pilot in Colab](https://colab.research.google.com/github/AliHasan-786/llm-invisible-watermarking/blob/codex/watermark-p0/output/jupyter-notebook/article50_gemma_pilot.ipynb). Ali must complete the masked Hugging Face login cell; the notebook handles the remaining no-cost pilot workflow and bundles the artifacts.
+[Open the one-click Gemma pilot in Colab](https://colab.research.google.com/github/AliHasan-786/llm-invisible-watermarking/blob/main/output/jupyter-notebook/article50_gemma_pilot.ipynb). Ali must complete the masked Hugging Face login cell; the notebook handles the remaining no-cost pilot workflow and bundles the artifacts.
 
 After confirmatory scoring, build the secondary curves, quality table, and
 blinded readability queue:
@@ -119,7 +120,7 @@ python -m http.server 8000 --directory dist
 # open http://localhost:8000/
 ```
 
-The release-candidate page is titled **Text Provenance Lab**. Its evidence
+The production page is titled **Text Provenance Lab**. Its evidence
 replay uses only preserved coursework values, fixed disclosed scales, explicit
 denominators, and numeric table alternatives. The separate word-level mechanics
 demonstrator is labeled as a toy, not the benchmark tokenizer or detector.
@@ -134,8 +135,16 @@ manifest binding, then copies only an explicit public allowlist into `dist/`.
 The package contains
 the site assets, numeric replay derivative, self-authored thumbnail/license, and
 approved methods documents. Raw corpora, notebooks, credentials, Python source,
-result caches, and backend/function code are excluded. Vercel is configured to
-publish this exact build output, but no deployment has been performed.
+result caches, and backend/function code are excluded. Vercel publishes only
+this exact build output. `installCommand: "true"` prevents Vercel from resolving
+the repository's research, Torch, or CUDA dependencies during static releases.
+
+The independently reviewed source is
+`e794de39b9100dc51bdbff398f0a35b986abcd4b`, merged as
+`27f3f89ec2368f324ef24c3a2fcfd92c3214ca10`. Production deployment
+`dpl_4DHxhKGFWBjyw3Q9cPM2nM8Wxga6` is live at the stable URL above. These
+identifiers describe the historical replay release only; they are not a SynthID
+or confirmatory study result.
 
 ## Repository map
 
@@ -168,7 +177,8 @@ output/jupyter-notebook/    Colab-ready gated-compute pilot
 REPORT.md                   Paper-structured report; extension results pending
 site/                       Mobile editorial mechanics lab
 dist/                       Generated public package (ignored; build locally)
-docs/ci/quality.yml         Staged GitHub Actions workflow
+.github/workflows/public-release.yml
+                            Dependency-free public-release smoke checks
 PREREGISTRATION.md          Approved and frozen protocol
 DATA_PROVENANCE.md          Dataset and cache lineage
 EXPLAINER.md                Architecture and interview preparation for Ali

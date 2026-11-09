@@ -73,6 +73,7 @@ def test_browser_contract_loading_and_malformed_states():
 
 def test_vercel_config_uses_allowlisted_static_build():
     config = json.loads((REPO / "vercel.json").read_text(encoding="utf-8"))
+    assert config["installCommand"] == "true"
     assert config["buildCommand"] == "python3 scripts/build_static_site.py"
     assert config["outputDirectory"] == "dist"
     assert "rewrites" not in config
@@ -85,7 +86,18 @@ def test_portfolio_metadata_and_licensed_thumbnail():
     assert metadata["title"] == "Text Provenance Lab"
     assert metadata["evidenceStage"] == "coursework"
     assert metadata["primaryMetric"] is None
-    assert metadata["demoUrl"] is None
+    assert metadata["status"] == "production"
+    assert metadata["demoUrl"] == "https://text-provenance-lab.vercel.app"
+    assert metadata["writeupUrl"].endswith("/blob/main/REPORT.md")
+    assert metadata["release"] == {
+        "reviewedSourceCommit": "e794de39b9100dc51bdbff398f0a35b986abcd4b",
+        "sourceMergeCommit": "27f3f89ec2368f324ef24c3a2fcfd92c3214ca10",
+        "metadataRevision": "git:containing-commit",
+        "checkedAt": "2026-11-09",
+        "publicationStatus": "production-live",
+        "productionUrl": "https://text-provenance-lab.vercel.app",
+        "productionDeploymentId": "dpl_4DHxhKGFWBjyw3Q9cPM2nM8Wxga6",
+    }
     assert len(metadata["evidence"]) == 3
     evidence = {item["id"]: item for item in metadata["evidence"]}
     assert evidence["historical-gemma-clean-tpr"]["value"] == replay["models"]["gemma"]["clean"]["tpr"]
@@ -99,3 +111,14 @@ def test_portfolio_metadata_and_licensed_thumbnail():
     ET.parse(thumbnail)
     licenses = (REPO / "assets" / "ASSET_LICENSES.md").read_text(encoding="utf-8")
     assert "Creative Commons Attribution 4.0" in licenses
+
+
+def test_public_release_workflow_is_dependency_free_and_honestly_scoped():
+    workflow = (REPO / ".github" / "workflows" / "public-release.yml").read_text(encoding="utf-8")
+    assert "public release offline smoke" in workflow
+    assert "python scripts/build_static_site.py" in workflow
+    assert "node --test tests/js/replay_contract.test.js" in workflow
+    assert "pip install" not in workflow
+    assert "npm install" not in workflow
+    assert "requirements.txt" not in workflow
+    assert "make check" not in workflow

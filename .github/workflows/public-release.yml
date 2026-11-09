@@ -1,0 +1,32 @@
+name: public release offline smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify source hashes and build the exact public package
+        run: python scripts/build_static_site.py --output "$RUNNER_TEMP/text-provenance-lab"
+      - name: Test the production browser contract
+        run: node --test tests/js/replay_contract.test.js
+      - name: Check shipped JavaScript syntax
+        run: |
+          node --check site/app.js
+          node --check site/replay_contract.js
+      - name: Verify the static-only Vercel guard
+        run: python -c 'import json; c=json.load(open("vercel.json")); assert c["installCommand"] == "true" and c["outputDirectory"] == "dist"'

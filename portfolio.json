@@ -12,19 +12,23 @@
     "AI Safety"
   ],
   "role": "Ali Hasan — watermark implementation, evaluation design, evidence replay, and editorial interaction",
-  "status": "release-candidate",
+  "status": "production",
   "evidenceStage": "coursework",
   "primaryMetric": null,
-  "demoUrl": null,
+  "demoUrl": "https://text-provenance-lab.vercel.app",
   "repoUrl": "https://github.com/AliHasan-786/llm-invisible-watermarking",
-  "writeupUrl": "https://github.com/AliHasan-786/llm-invisible-watermarking/blob/codex/watermark-p0/REPORT.md",
+  "writeupUrl": "https://github.com/AliHasan-786/llm-invisible-watermarking/blob/main/REPORT.md",
   "thumbnail": "assets/text-provenance-lab-thumbnail.svg",
   "thumbnailAlt": "Historical watermark replay showing 90.0 percent Gemma clean TPR, 98.0 percent Llama clean TPR, and a 27.3 percent Llama paraphrase scores-only result.",
   "featured": false,
   "release": {
-    "commit": null,
-    "checkedAt": "2026-11-08",
-    "publicationStatus": "coordinator-review"
+    "reviewedSourceCommit": "e794de39b9100dc51bdbff398f0a35b986abcd4b",
+    "sourceMergeCommit": "27f3f89ec2368f324ef24c3a2fcfd92c3214ca10",
+    "metadataRevision": "git:containing-commit",
+    "checkedAt": "2026-11-09",
+    "publicationStatus": "production-live",
+    "productionUrl": "https://text-provenance-lab.vercel.app",
+    "productionDeploymentId": "dpl_4DHxhKGFWBjyw3Q9cPM2nM8Wxga6"
   },
   "evidence": [
     {

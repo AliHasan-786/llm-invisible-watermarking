@@ -1,109 +1,92 @@
-# Decision brief: historical replay release candidate
+# Decision brief: historical replay release closeout
 
 **Date:** 2026-11-09
 
-**Assignment:** `watermark-replay-release-hardening-1`
+**Assignment:** `watermark-release-closeout-1`
 
-**Branch:** `codex/watermark-p0`
+**Base:** merged `main` at `27f3f89ec2368f324ef24c3a2fcfd92c3214ca10`
 
-**Gate:** coordinator release review; pilot and scientific execution remain stopped
+**Gate:** source metadata and deployment-safety closeout; scientific execution remains stopped
 
 ## Recommended call
 
-Approve the historical replay as a standalone release candidate for coordinator
-design/framing review. Do not promote it as a completed SynthID or confirmatory
-Article 50 evaluation.
+Accept the historical replay release as closed once this metadata revision is
+on `main` and its bounded public-release workflow passes. Continue to describe
+the live artifact as a historical Kirchenbauer coursework replay. Do not imply
+that SynthID, the pilot, or the confirmatory Article 50 study ran.
 
-## Public experience
+## Actual release record
 
-- The first screen is now **Text Provenance Lab**, with completed historical
-  evidence separated from the frozen, unexecuted comparison protocol.
-- Visitors can inspect clean score distributions, eight length cells per model,
-  and measured edit cells using a fixed -4 to 10 z-score axis and fixed 0–100%
-  rate scale. No values are silently clipped or rescaled between models.
-- Every view states denominators and has an accessible numeric table.
-- On narrow screens, each wide table is a labeled, keyboard-focusable region
-  with a visible focus ring and arrow-key horizontal scrolling. The page itself
-  does not overflow at 320 CSS pixels.
-- Clean-score controls use diamond marks and watermarked scores use circles, so
-  the distinction does not depend on color. Rate ticks retain their exact
-  geometry at 0% and other edge values while only labels are inset.
-- `not_run` means the experiment did not run. `unavailable` means a measured
-  score survives but its transformed text does not. The two states are never
-  conflated.
-- The word-level browser mechanics toy is visually and verbally separated from
-  the real cached-evidence replay.
-- Source, methods, provenance, and portfolio-return links are visible.
+- Independently reviewed source:
+  `e794de39b9100dc51bdbff398f0a35b986abcd4b`.
+- Normal merge commit:
+  `27f3f89ec2368f324ef24c3a2fcfd92c3214ca10`.
+- Production project: `text-provenance-lab`.
+- Stable URL: `https://text-provenance-lab.vercel.app`.
+- Ready production deployment: `dpl_4DHxhKGFWBjyw3Q9cPM2nM8Wxga6`.
+- Ready preview deployment: `dpl_Eg4jMgC9eKSNvetCKu6H3egZrjqZ`; browser
+  access is Vercel-authentication protected and was not bypassed.
+- Canceled first deployment: `dpl_7RrFSEz93CDNDp3go3jP888nbvFQ`.
+- Portfolio-hub snapshot: `288ec81`; its deployment verification remains a
+  separate coordinator task.
 
-## Integrity and failure behavior
+The live page was checked at the stable URL. The Llama paraphrase selection
+shows the preserved 27.3% scores-only result and the provenance boundary. It
+does not present a SynthID or confirmatory result.
 
-- Contract version 2 declares fixed display scales and build verification.
-- The deterministic exporter verifies all 17 manifest hashes and checks
-  summaries against score arrays before writing atomically.
-- The browser validates the complete contract; it no longer treats a copied
-  artifact count as verification and does not claim to re-hash source files.
-- Missing/corrupt exporter inputs and stale output fail closed.
-- Browser contract tests import the production validator. They require positive
-  integer counts and the exact unique model/length/edit cells, recompute clean
-  and edit rates and summaries from score arrays using strict
-  `score > threshold`, and reject contradictions, malformed arrays, fabricated
-  not-run values, out-of-axis scores, malformed JSON, HTTP errors, and network
-  failures. The UI shows no fallback headline metrics.
+## Deployment defect and permanent guard
 
-## Integration package
+The first Vercel CLI attempt unexpectedly targeted production and began
+installing the repository's full research requirements, including Torch/CUDA
+packages. The coordinator canceled it. The Vercel project was then configured
+with `installCommand: "true"`, and the ready production deployment used that
+setting.
 
-- Stable portfolio ID: `watermarking`.
-- Display title: `Text Provenance Lab`; frozen protocol/report titles remain
-  unchanged internally.
-- `portfolio.json` distinguishes release state from coursework evidence stage
-  and traces each thumbnail/headline value to manifest-backed artifacts.
-- `assets/text-provenance-lab-thumbnail.svg` is representative of actual
-  historical values and explicitly marks the paraphrase value scores-only.
-- The self-authored asset is licensed CC BY 4.0 in
-  `assets/ASSET_LICENSES.md`.
-- `scripts/build_static_site.py` emits a deterministic 12-file package: 11
-  allowlisted public artifacts plus a build manifest. It verifies all 17 source
-  hashes and the replay's manifest binding before copying; `make check` verifies
-  byte-for-byte replay freshness.
-- Raw corpus JSONL, prompts/completions, notebooks, result caches, credentials,
-  Python source, and backend/function code are absent from the public package.
-- `vercel.json` publishes only the generated `dist/` output. No deployment was
-  performed.
+This source revision makes the guard portable in `vercel.json` and tests it.
+The static builder remains standard-library-only and publishes the same exact
+12-file package: 11 allowlisted artifacts plus its build manifest. Raw corpus
+JSONL, prompts/completions, NPZ caches, notebooks, credentials, Python research
+code, and backend/functions are not in the output.
 
-## Verification evidence
+## Metadata boundary
 
-- `make PYTHON=python check`: 35 tests passed; all 17 cached hashes and the
-  deterministic replay were verified.
-- Production browser validator: 10 Node tests passed, including contradictory
-  rate/summary cases and exact 0%, 1%, and 100% geometry conversion.
-- Exact-package browser QA at 320 × 844: no page overflow; table keyboard focus,
-  visible outline, and arrow-key scroll confirmed; zero-rate tick remained at
-  the origin; missing replay returned the unavailable state with no fallback;
-  normal reload produced zero console errors or warnings.
-- Exact static inventory and local-link tests passed.
+`portfolio.json` now records the production URL and state. It distinguishes:
 
-## Review requirements by concern
+- `reviewedSourceCommit`: the exact independently reviewed release source;
+- `sourceMergeCommit`: the merge that placed that source on `main`; and
+- `metadataRevision: git:containing-commit`: an explicit instruction to use
+  the Git revision containing the metadata file, avoiding an impossible
+  self-referential commit hash.
 
-### Scientific execution — still binding
+The root portfolio handoff records the resulting containing revision after the
+commit exists.
 
-1. Do not run the pilot or confirmatory suite without the exact frozen model
-   revisions, personally supplied credentials, and an appropriate no-cost GPU.
-2. Model substitution, quantization, paid compute, or protocol/calibration
-   deviation requires a new scientific decision.
-3. Fresh H1 paraphrase reproduction within ±5 percentage points remains
-   required before a new result claim.
-4. The November contribution amendment and compliance framing require
-   independent scientific/legal review before claims from the planned study
-   are published.
+## Bounded CI
 
-### Release framing — coordinator-owned
+`.github/workflows/public-release.yml` is a no-cost, dependency-free public
+release smoke workflow. It:
 
-1. Review first-screen wording, scale legibility, keyboard/mobile behavior,
-   thumbnail, metadata, and source/return links.
-2. Confirm that the portfolio snapshot promotes only the coursework replay and
-   does not imply SynthID results.
-3. Merge/deployment are routine coordinator actions after this review; no
-   additional user-permission hold is asserted here.
+1. runs the standard-library static builder, verifying all 17 source hashes and
+   the exact public-package inventory;
+2. runs the 10 production browser-contract tests;
+3. checks the shipped JavaScript syntax; and
+4. verifies that Vercel dependency installation is disabled.
 
-No reviewer automation was invoked. No credentials, model/provider access,
-inference, paid compute, merge, or deployment occurred in this assignment.
+It does not install `requirements.txt`, Torch, CUDA, model weights, or provider
+packages. It is accurately named and does not claim full scientific validation;
+`make check` remains the complete local cache/detector/replay check.
+
+## Remaining gates
+
+- No new deployment is needed for this metadata-only closeout. The coordinator
+  may connect Git after the safe source configuration is on `main`.
+- The portfolio-hub deployment for snapshot `288ec81` still needs coordinator
+  verification.
+- Any pilot or confirmatory run still requires exact frozen revisions,
+  personally supplied credentials, an appropriate no-cost GPU, and the existing
+  scientific decision protocol.
+- Paid compute, provider access, model inference, a scientific/legal-review
+  waiver, and new public claims remain out of scope.
+
+No old reviewer automation was invoked. No provider/model access, inference,
+GPU run, dependency download, spend, or deployment occurred in this closeout.
