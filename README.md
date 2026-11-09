@@ -1,12 +1,31 @@
-# Watermark Under Article 50
+# Text Provenance Lab
 
-An evaluation harness for measuring how reliably text watermarks remain detectable after realistic editing and laundering attacks. The study compares a green-list logit-bias watermark, the open-source SynthID-Text implementation, and an unwatermarked control at a fixed false-positive operating point.
+A historical evidence replay and evaluation harness for text watermarking. The
+release candidate lets visitors inspect preserved Kirchenbauer detector scores
+across two models, text lengths, and edit conditions. A separate frozen protocol,
+**Watermark Under Article 50**, plans a future comparison with open-source
+SynthID-Text and an unwatermarked control; that pilot and confirmatory study have
+not run.
 
-The policy question is deliberately narrow: when Article 50 asks providers to make synthetic text machine-readable and detectable, what detection rate remains at 1% false positives after common transformations? This repository produces measurements for that conversation; it does not offer legal advice or claim that a single benchmark establishes compliance.
+The planned policy question is deliberately narrow: when Article 50 asks
+providers to make synthetic text machine-readable and detectable, what detection
+rate remains at a stated false-positive operating point after common
+transformations? The current historical replay does not answer that planned
+comparison, offer legal advice, or establish compliance.
 
 ## Status
 
-Phase P0 is complete. P1's execution code is complete: the pinned SynthID adapter, immutable prompt revisions, tripled calibration controls, 33-condition attack matrix, detector scoring, paired comparison, cache-to-report builder, resumable ledgers, and one-click quarantined pilot notebook are implemented and tested. P2's ROC/DET, fixed operating-point, pinned quality, blinded readability, report, and mobile-interactive pipelines are also built, but remain undeployed and contain no SynthID result. A November 2026 closest-work review narrows the defensible contribution to clean-threshold transfer under task, length, and edit shift; it retires any “first evaluation” framing. The pilot remains unrun. No login, inference, paid compute, merge, or deployment was attempted.
+The historical replay is a local release candidate with deterministic export,
+fixed comparison scales, accessible numeric tables, licensed thumbnail, and
+portfolio metadata. Phase P0 is complete. P1's execution code is complete: the
+pinned SynthID adapter, immutable prompt revisions, tripled calibration
+controls, 33-condition attack matrix, detector scoring, paired comparison,
+cache-to-report builder, resumable ledgers, and one-click quarantined pilot
+notebook are implemented and tested. P2's analysis pipelines are built, but
+contain no SynthID result. A November 2026 closest-work review narrows the
+defensible contribution to clean-threshold transfer under task, length, and edit
+shift; it retires any “first evaluation” framing. The pilot remains unrun. No
+login, inference, paid compute, merge, or deployment was attempted.
 
 Article 50's relevant transparency obligations become applicable on **August 2, 2026**. Article 50(2) calls for machine-readable marking and for technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible. See the [official regulation](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689), the Commission's [20 July 2026 implementation guidelines](https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems), and its [final Code of Practice announcement](https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content).
 
@@ -98,10 +117,14 @@ python -m http.server 8000
 # open http://localhost:8000/site/
 ```
 
-The browser lab uses a disclosed word-level mechanics demonstrator, not the
-benchmark tokenizer or detector. Its chart contains only preserved coursework
-values. `REPORT.md` is similarly result-safe: extension tables stay pending
-until the report-data builder finds confirmatory artifacts.
+The release-candidate page is titled **Text Provenance Lab**. Its evidence
+replay uses only preserved coursework values, fixed disclosed scales, explicit
+denominators, and numeric table alternatives. The separate word-level mechanics
+demonstrator is labeled as a toy, not the benchmark tokenizer or detector.
+`REPORT.md` retains the frozen study title internally and stays result-safe:
+extension tables remain pending until the report-data builder finds
+confirmatory artifacts. Portfolio integration metadata is in `portfolio.json`;
+the self-authored thumbnail and CC BY 4.0 notice are under `assets/`.
 
 ## Repository map
 

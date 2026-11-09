@@ -1,7 +1,7 @@
 # Portfolio entry draft — not approved for publication
 
-## Watermark Under Article 50
+## Text Provenance Lab
 
-An adversarial evaluation system for text provenance methods. It pairs a preregistered 33-condition attack harness with prompt-clustered false-positive calibration, immutable run lineage, and an editorial interactive that makes watermark evidence legible as text changes. The comparison targets a from-scratch green-list method and open-source SynthID-Text across paraphrasing, translation, token edits, truncation, and cross-model laundering.
+A transparent evidence lab for text watermarking. The release candidate lets visitors inspect hash-verified historical Kirchenbauer detector scores across two models, eight length cells, and recorded edit conditions with fixed scales and explicit denominators. A clearly separate mechanics toy explains why local statistical evidence changes under editing. The repository also contains a frozen, unexecuted protocol for a future Kirchenbauer–SynthID comparison.
 
-**Publication hold:** The harness, report structure, and interactive now exist, but SynthID results and deployment do not. Do not add this language to a public portfolio until confirmatory caches populate the report, H1 is freshly reproduced, the report is reviewed, and Ali authorizes deployment under his name.
+**Release state:** Historical replay release candidate; coordinator framing and design review pending. Do not describe it as a completed SynthID evaluation. Scientific promotion of the planned comparison still requires confirmatory caches, fresh H1 reproduction, and independent scientific/compliance-framing review.

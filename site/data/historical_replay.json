@@ -1,10 +1,30 @@
 {
   "asOf": "2026-11-08",
+  "buildVerification": {
+    "exporter": "scripts/export_historical_replay.py",
+    "status": "verified_by_exporter",
+    "verificationScope": "The exporter verified manifest hashes and summary/score consistency before writing this file. The browser validates this contract but does not re-hash source artifacts.",
+    "verifiedArtifactCount": 17
+  },
   "confirmatoryArticle50": {
     "calibratedFpr": null,
     "reason": "The preregistered pilot and confirmatory runs have not executed.",
     "results": null,
     "status": "not_run"
+  },
+  "display": {
+    "rateAxis": {
+      "max": 1.0,
+      "min": 0.0,
+      "scope": "Fixed across all model, length, and edit rate comparisons",
+      "unit": "proportion"
+    },
+    "scoreAxis": {
+      "max": 10.0,
+      "min": -4.0,
+      "scope": "Fixed across both models and all clean/edit score views",
+      "unit": "z-score"
+    }
   },
   "models": {
     "gemma": {
@@ -641,8 +661,9 @@
           ],
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.900497512437811,
-          "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformationReconstructable": false,
+          "transformedTextCached": false,
+          "transformedTextState": "not_applicable"
         },
         {
           "condition": "word_sub_5pct",
@@ -855,7 +876,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.8507462686567164,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "word_sub_10pct",
@@ -1068,7 +1090,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.835820895522388,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "word_sub_15pct",
@@ -1281,7 +1304,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.7910447761194029,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "word_sub_20pct",
@@ -1494,7 +1518,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.7512437810945274,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "token_deletion_10pct",
@@ -1707,7 +1732,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.8606965174129353,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "token_insertion_10pct",
@@ -1920,7 +1946,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.8606965174129353,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "llm_paraphrase",
@@ -1931,7 +1958,8 @@
           "status": "not_run",
           "tprAtHistoricalThreshold": null,
           "transformationReconstructable": false,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "not_run"
         }
       ],
       "lengthCells": [
@@ -2346,8 +2374,9 @@
           ],
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.9797979797979798,
-          "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformationReconstructable": false,
+          "transformedTextCached": false,
+          "transformedTextState": "not_applicable"
         },
         {
           "condition": "word_sub_5pct",
@@ -2458,7 +2487,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.9595959595959596,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "word_sub_10pct",
@@ -2569,7 +2599,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.9595959595959596,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "word_sub_15pct",
@@ -2680,7 +2711,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.9191919191919192,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "word_sub_20pct",
@@ -2791,7 +2823,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.9090909090909091,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "token_deletion_10pct",
@@ -2902,7 +2935,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.9595959595959596,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "token_insertion_10pct",
@@ -3013,7 +3047,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.9797979797979798,
           "transformationReconstructable": true,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         },
         {
           "condition": "llm_paraphrase",
@@ -3124,7 +3159,8 @@
           "status": "measured_historical",
           "tprAtHistoricalThreshold": 0.2727272727272727,
           "transformationReconstructable": false,
-          "transformedTextCached": false
+          "transformedTextCached": false,
+          "transformedTextState": "unavailable"
         }
       ],
       "lengthCells": [
@@ -3221,7 +3257,7 @@
     "source": "committed coursework artifacts on repository main",
     "verifiedArtifactCount": 17
   },
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "scope": "Local replay of preserved Kirchenbauer detector evidence. No model inference, live detection, SynthID result, or Article 50 compliance conclusion.",
   "status": "historical_coursework_replay",
   "synthId": {

@@ -1,5 +1,6 @@
 import json
 import subprocess
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
@@ -10,15 +11,18 @@ SITE = REPO / "site"
 def test_site_has_required_interactions_and_honest_scope():
     html = (SITE / "index.html").read_text(encoding="utf-8")
     for required in (
-        "Generate marked sample",
+        "Text Provenance Lab",
+        "Reset demo sample",
         "Paraphrase proxy",
         "Translation proxy",
         "Cut to half",
-        "SynthID extension pending gated compute",
-        "not the token-level benchmark",
+        "no SynthID or confirmatory result exists yet",
+        "not the cached detector",
         "does not pronounce legal compliance",
         "data-historical-replay",
-        "None is confirmatory SynthID evidence",
+        "The deterministic exporter—not this browser—verified",
+        "https://ali-hasan-ai.vercel.app",
+        "https://github.com/AliHasan-786/llm-invisible-watermarking",
     ):
         assert required in html
 
@@ -32,12 +36,22 @@ def test_site_design_constraints_and_mobile_breakpoints():
 
 
 def test_javascript_syntax_when_node_is_available():
+    for path in (SITE / "app.js", SITE / "replay_contract.js"):
+        result = subprocess.run(
+            ["node", "--check", str(path)],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr
+
+
+def test_browser_contract_loading_and_malformed_states():
     result = subprocess.run(
-        ["node", "--check", str(SITE / "app.js")],
+        ["node", "--test", str(REPO / "tests" / "js" / "replay_contract.test.js")],
         capture_output=True,
         text=True,
     )
-    assert result.returncode == 0, result.stderr
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_vercel_config_routes_static_site():
@@ -45,4 +59,28 @@ def test_vercel_config_routes_static_site():
     rewrites = {item["source"]: item["destination"] for item in config["rewrites"]}
     assert rewrites["/"] == "/site/index.html"
     assert rewrites["/app.js"] == "/site/app.js"
+    assert rewrites["/replay_contract.js"] == "/site/replay_contract.js"
     assert rewrites["/historical-replay.json"] == "/site/data/historical_replay.json"
+
+
+def test_portfolio_metadata_and_licensed_thumbnail():
+    metadata = json.loads((REPO / "portfolio.json").read_text(encoding="utf-8"))
+    replay = json.loads((SITE / "data" / "historical_replay.json").read_text(encoding="utf-8"))
+    assert metadata["id"] == "watermarking"
+    assert metadata["title"] == "Text Provenance Lab"
+    assert metadata["evidenceStage"] == "coursework"
+    assert metadata["primaryMetric"] is None
+    assert metadata["demoUrl"] is None
+    assert len(metadata["evidence"]) == 3
+    evidence = {item["id"]: item for item in metadata["evidence"]}
+    assert evidence["historical-gemma-clean-tpr"]["value"] == replay["models"]["gemma"]["clean"]["tpr"]
+    assert evidence["historical-llama-clean-tpr"]["value"] == replay["models"]["llama"]["clean"]["tpr"]
+    llama_paraphrase = next(
+        cell for cell in replay["models"]["llama"]["editCells"]
+        if cell["condition"] == "llm_paraphrase"
+    )
+    assert evidence["historical-llama-paraphrase-tpr"]["value"] == llama_paraphrase["tprAtHistoricalThreshold"]
+    thumbnail = REPO / metadata["thumbnail"]
+    ET.parse(thumbnail)
+    licenses = (REPO / "assets" / "ASSET_LICENSES.md").read_text(encoding="utf-8")
+    assert "Creative Commons Attribution 4.0" in licenses

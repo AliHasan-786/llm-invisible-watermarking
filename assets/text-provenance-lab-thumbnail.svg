@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Text Provenance Lab historical replay</title>
+  <desc id="description">Three measured historical true-positive rates: Gemma clean 90.0 percent, Llama clean 98.0 percent, and Llama paraphrase 27.3 percent from scores only.</desc>
+  <rect width="1200" height="630" fill="#f3efe5"/>
+  <path d="M72 86H1128M72 544H1128" stroke="#bcb5a7"/>
+  <text x="72" y="65" fill="#1e5b49" font-family="ui-monospace, monospace" font-size="18" letter-spacing="3">HISTORICAL EVIDENCE REPLAY</text>
+  <text x="72" y="150" fill="#171714" font-family="Georgia, serif" font-size="64">Text Provenance Lab</text>
+  <text x="72" y="198" fill="#68645b" font-family="Arial, sans-serif" font-size="22">Preserved Kirchenbauer detector evidence · SynthID not run</text>
+  <text x="72" y="276" fill="#171714" font-family="Arial, sans-serif" font-size="18">GEMMA · CLEAN · n=201</text>
+  <rect x="360" y="248" width="684" height="38" fill="#1e5b49"/>
+  <text x="1064" y="276" fill="#171714" font-family="ui-monospace, monospace" font-size="22">90.0%</text>
+  <text x="72" y="362" fill="#171714" font-family="Arial, sans-serif" font-size="18">LLAMA · CLEAN · n=99</text>
+  <rect x="360" y="334" width="745" height="38" fill="#1e5b49"/>
+  <text x="1064" y="362" fill="#171714" font-family="ui-monospace, monospace" font-size="22">98.0%</text>
+  <text x="72" y="448" fill="#171714" font-family="Arial, sans-serif" font-size="18">LLAMA · PARAPHRASE · n=99</text>
+  <rect x="360" y="420" width="207" height="38" fill="#a64b32"/>
+  <text x="585" y="448" fill="#a64b32" font-family="ui-monospace, monospace" font-size="22">27.3% · SCORES ONLY</text>
+  <text x="72" y="584" fill="#68645b" font-family="ui-monospace, monospace" font-size="16">FIXED HISTORICAL THRESHOLDS · NOT CONFIRMATORY CALIBRATED-FPR EVIDENCE</text>
+</svg>

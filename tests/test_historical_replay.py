@@ -21,8 +21,16 @@ def test_tracked_replay_is_deterministic_and_fail_closed():
     result = run_export(RESULTS, TRACKED_EXPORT, check=True)
     assert result.returncode == 0, result.stdout + result.stderr
     contract = json.loads(TRACKED_EXPORT.read_text(encoding="utf-8"))
+    assert contract["schemaVersion"] == 2
     assert contract["provenance"]["verifiedArtifactCount"] == 17
     assert contract["provenance"]["rawTextIncluded"] is False
+    assert contract["buildVerification"]["status"] == "verified_by_exporter"
+    assert contract["display"]["scoreAxis"] == {
+        "max": 10.0,
+        "min": -4.0,
+        "scope": "Fixed across both models and all clean/edit score views",
+        "unit": "z-score",
+    }
     assert contract["synthId"]["status"] == "not_run"
     assert contract["synthId"]["scores"] is None
     assert contract["confirmatoryArticle50"]["calibratedFpr"] is None
@@ -34,6 +42,14 @@ def test_tracked_replay_is_deterministic_and_fail_closed():
     )
     assert gemma_paraphrase["status"] == "not_run"
     assert gemma_paraphrase["tprAtHistoricalThreshold"] is None
+    assert gemma_paraphrase["transformedTextState"] == "not_run"
+    llama_paraphrase = next(
+        cell for cell in contract["models"]["llama"]["editCells"]
+        if cell["condition"] == "llm_paraphrase"
+    )
+    assert llama_paraphrase["status"] == "measured_historical"
+    assert llama_paraphrase["transformedTextState"] == "unavailable"
+    assert contract["models"]["gemma"]["editCells"][0]["transformedTextState"] == "not_applicable"
 
 
 def test_missing_input_writes_no_output(tmp_path):

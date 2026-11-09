@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import tempfile
 from pathlib import Path
@@ -116,7 +117,8 @@ def build_model(results: Path, key: str) -> Dict[str, Any]:
                 "tprAtHistoricalThreshold": float(summary["tpr_at_1pct_fpr"]),
                 "scores": finite_values(f"{key}/{condition}", scores),
                 "transformedTextCached": False,
-                "transformationReconstructable": condition != "llm_paraphrase",
+                "transformedTextState": "not_applicable" if condition == "baseline" else "unavailable",
+                "transformationReconstructable": condition not in {"baseline", "llm_paraphrase"},
             }
         )
     if "llm_paraphrase" not in robustness:
@@ -130,6 +132,7 @@ def build_model(results: Path, key: str) -> Dict[str, Any]:
                 "tprAtHistoricalThreshold": None,
                 "scores": None,
                 "transformedTextCached": False,
+                "transformedTextState": "not_run",
                 "transformationReconstructable": False,
             }
         )
@@ -184,8 +187,20 @@ def build_model(results: Path, key: str) -> Dict[str, Any]:
 def build_contract(results: Path) -> Dict[str, Any]:
     manifest = verify_manifest(results)
     models = {key: build_model(results, key) for key in ("gemma", "llama")}
-    return {
-        "schemaVersion": 1,
+    all_scores = []
+    for model in models.values():
+        all_scores.extend(model["clean"]["watermarkedScores"])
+        all_scores.extend(model["clean"]["controlScores"])
+        for cell in model["editCells"]:
+            if cell["scores"] is not None:
+                all_scores.extend(cell["scores"])
+    score_min = float(math.floor(min(all_scores)))
+    score_max = float(math.ceil(max(all_scores)))
+    if not score_min < score_max:
+        fail("Cannot construct a non-degenerate score display axis")
+
+    contract = {
+        "schemaVersion": 2,
         "asOf": "2026-11-08",
         "status": "historical_coursework_replay",
         "scope": (
@@ -203,6 +218,29 @@ def build_contract(results: Path) -> Dict[str, Any]:
                 "dataset terms continue to govern prompts and completions; none are duplicated here."
             ),
         },
+        "buildVerification": {
+            "status": "verified_by_exporter",
+            "exporter": "scripts/export_historical_replay.py",
+            "verifiedArtifactCount": len(manifest["files"]),
+            "verificationScope": (
+                "The exporter verified manifest hashes and summary/score consistency before "
+                "writing this file. The browser validates this contract but does not re-hash source artifacts."
+            ),
+        },
+        "display": {
+            "scoreAxis": {
+                "min": score_min,
+                "max": score_max,
+                "unit": "z-score",
+                "scope": "Fixed across both models and all clean/edit score views",
+            },
+            "rateAxis": {
+                "min": 0.0,
+                "max": 1.0,
+                "unit": "proportion",
+                "scope": "Fixed across all model, length, and edit rate comparisons",
+            },
+        },
         "models": models,
         "synthId": {
             "status": "not_run",
@@ -219,6 +257,10 @@ def build_contract(results: Path) -> Dict[str, Any]:
             "reason": "The preregistered pilot and confirmatory runs have not executed.",
         },
     }
+    for value in all_scores:
+        if value < score_min or value > score_max:
+            fail("A preserved score falls outside the declared display axis")
+    return contract
 
 
 def serialize(contract: Dict[str, Any]) -> bytes:

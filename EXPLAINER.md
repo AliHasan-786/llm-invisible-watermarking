@@ -96,12 +96,17 @@ Implemented in P2 before results:
 - a deterministic historical-evidence exporter and browser replay backed by all
   17 SHA-256-verified coursework artifacts; missing cells fail closed as
   `not_run`/`null` and no prompt or completion text is duplicated;
+- a release-candidate **Text Provenance Lab** interface with one fixed z-score
+  scale across models/conditions, a fixed 0–100% rate scale, denominators,
+  accessible numeric tables, and separate unavailable versus not-run states;
 - a dated November 2026 closest-work review that retires first-evaluation and
   unsupported adoption claims.
 
-The browser lab deliberately uses a word-level keyed demonstrator. It teaches
+The browser mechanics section deliberately uses a word-level keyed demonstrator. It teaches
 why edits disrupt local statistical evidence without pretending to be the
-Gemma/Llama token detector. The disclosure appears next to the controls.
+Gemma/Llama token detector. It is visually and verbally separated from the
+real cached-evidence replay. The browser validates a versioned contract; only
+the deterministic exporter verifies source hashes and summary/array agreement.
 
 Still not complete:
 
