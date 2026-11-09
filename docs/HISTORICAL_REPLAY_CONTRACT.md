@@ -29,6 +29,17 @@ with denominators as an alternative to each visual.
 - `buildVerification.status` records that the exporter performed hash and
   summary/array verification. The browser validates the complete versioned
   contract; it does not claim to re-hash the source artifacts.
+- The browser requires the exact two model identifiers, eight ordered length
+  cells, and eight ordered edit conditions. Missing, duplicated, unnamed, or
+  unexpected cells are rejected.
+- Counts must be positive integers. Score arrays must match those counts, remain
+  inside the declared axis, and contain only finite values. The browser
+  recomputes clean and edit TPR/FPR with the strict `score > threshold` rule,
+  plus edit means and medians, and rejects contradictory summaries outside a
+  floating-point tolerance.
+- Rate geometry is derived from validated values on the exact fixed 0–100%
+  scale. Edge labels may be inset for legibility; the corresponding ticks are
+  not clamped.
 
 Historical clean thresholds were estimated from the preserved coursework
 controls without a recorded calibration/held-out split. Length cells used a
@@ -40,9 +51,15 @@ as confirmatory calibrated-FPR evidence.
 ```bash
 python scripts/export_historical_replay.py
 python scripts/export_historical_replay.py --check
+python scripts/build_static_site.py
 ```
 
 The second command verifies that the tracked browser export is byte-for-byte
 current. `make check` includes that verification, malformed-contract tests,
 out-of-axis refusal, null-state enforcement, and network/HTTP/JSON loading
 failure tests.
+
+The static-package command verifies that same replay and copies an explicit
+public allowlist into `dist/`. Its inventory test rejects raw corpus text,
+notebooks, credentials, source caches, and backend/function code, and verifies
+that every local page link resolves inside the package.

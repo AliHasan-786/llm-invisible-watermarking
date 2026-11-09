@@ -60,7 +60,7 @@ function scorePlot(clean, axis) {
   return `<div class="score-plot" role="img" aria-label="Cached detector score distribution on a fixed ${axis.min} to ${axis.max} z-score axis">
     ${dots(clean.controlScores, "control")}${dots(clean.watermarkedScores, "marked")}
     <b class="score-threshold" style="--x:${scorePosition(clean.threshold, axis)}%"><span>threshold ${clean.threshold.toFixed(3)}</span></b>
-  </div>${scoreAxis(axis)}<div class="plot-key"><span><i class="control"></i>Control scores</span><span><i class="marked"></i>Watermarked scores</span></div>`;
+  </div>${scoreAxis(axis)}<div class="plot-key"><span><i class="control"></i>Control scores (diamonds)</span><span><i class="marked"></i>Watermarked scores (circles)</span></div>`;
 }
 
 function scoreSummaryRows(clean) {
@@ -72,7 +72,8 @@ function scoreSummaryRows(clean) {
 }
 
 function tableShell(caption, headings, rows) {
-  return `<div class="table-wrap"><table><caption>${escapeHtml(caption)}</caption><thead><tr>${headings.map((heading) => `<th scope="col">${escapeHtml(heading)}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  const safeCaption = escapeHtml(caption);
+  return `<div class="table-wrap" role="region" aria-label="${safeCaption}" tabindex="0"><table><caption>${safeCaption}</caption><thead><tr>${headings.map((heading) => `<th scope="col">${escapeHtml(heading)}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 function cleanTable(model) {
@@ -146,29 +147,34 @@ function renderReplay() {
     return;
   }
   if (view === "length") {
+    const tprPosition = window.ReplayContract.ratePercent(cell.tpr);
+    const fprPosition = window.ReplayContract.ratePercent(cell.fpr);
     replayPanel.innerHTML = `<div class="replay-metrics">
       ${metric("Cached TPR", percent(cell.tpr), `n=${cell.nWatermarked}`)}
       ${metric("Cached FPR", percent(cell.fpr), `n=${cell.nControl}`)}
       ${metric("Per-length threshold", cell.threshold.toFixed(3), `${cell.tokens} tokens`)}
-    </div><div class="rate-plot" role="img" aria-label="TPR ${percent(cell.tpr)} and FPR ${percent(cell.fpr)} on a fixed zero to one-hundred-percent scale"><span class="rate-mark tpr" style="--value:${cell.tpr * 100}%">TPR ${percent(cell.tpr)}</span><span class="rate-mark fpr" style="--value:${cell.fpr * 100}%">FPR ${percent(cell.fpr)}</span></div><div class="rate-axis"><span>0%</span><span>50%</span><span>100%</span></div>${lengthTable(model, selectedIndex)}<p class="replay-note">Every rate view uses a fixed 0–100% scale. This historical cell used its own threshold on the same cache; it is descriptive, not held-out confirmatory calibration.</p>`;
+    </div><div class="rate-plot" role="img" aria-label="TPR ${percent(cell.tpr)} and FPR ${percent(cell.fpr)} on a fixed zero to one-hundred-percent scale"><i class="rate-tick tpr" aria-hidden="true" style="--value:${tprPosition}%"></i><span class="rate-label tpr" style="--label-value:${tprPosition}%">TPR ${percent(cell.tpr)}</span><i class="rate-tick fpr" aria-hidden="true" style="--value:${fprPosition}%"></i><span class="rate-label fpr" style="--label-value:${fprPosition}%">FPR ${percent(cell.fpr)}</span></div><div class="rate-axis"><span>0%</span><span>50%</span><span>100%</span></div>${lengthTable(model, selectedIndex)}<p class="replay-note">Every rate tick stays at its exact value on a fixed 0–100% scale; only the text label is inset at the edges. This historical cell used its own threshold on the same cache; it is descriptive, not held-out confirmatory calibration.</p>`;
     return;
   }
   const transformedTextValue = cell.transformedTextState === "not_applicable" ? "Not applicable" : "Unavailable";
   const transformedTextNote = cell.transformedTextState === "not_applicable"
     ? "unmodified historical completion"
     : cell.transformationReconstructable ? "deterministic edit can be reconstructed" : "scores only; cannot reconstruct";
+  const availabilityNote = cell.transformedTextState === "not_applicable"
+    ? "Baseline is the unmodified historical completion; transformed text does not apply."
+    : "Measured scores are available; transformed attack text is unavailable.";
   replayPanel.innerHTML = `<div class="replay-metrics">
     ${metric("TPR at historical threshold", percent(cell.tprAtHistoricalThreshold), `n=${cell.n}`)}
     ${metric("Mean z-score", cell.meanZ.toFixed(3))}
     ${metric("Median z-score", cell.medianZ.toFixed(3))}
     ${metric("Transformed text", transformedTextValue, transformedTextNote)}
   </div>${scoreStrip(cell, scoreScale)}${editTable(model, selectedIndex)}
-  <p class="replay-note">Measured scores are available; transformed attack text is unavailable. The strip uses the fixed shared score axis and the historical clean threshold. It does not run a detector.</p>`;
+  <p class="replay-note">${availabilityNote} The strip uses the fixed shared score axis and the historical clean threshold. It does not run a detector.</p>`;
 }
 
 async function loadReplay() {
   try {
-    replayData = await window.ReplayContract.loadReplayContract(fetch, "/site/data/historical_replay.json");
+    replayData = await window.ReplayContract.loadReplayContract(fetch, "/historical-replay.json");
     replayStatus.textContent = `Exporter-verified replay · ${replayData.buildVerification.verifiedArtifactCount} source artifacts · browser contract valid · SynthID not run`;
     renderReplay();
   } catch (error) {

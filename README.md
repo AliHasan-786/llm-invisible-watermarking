@@ -16,8 +16,9 @@ comparison, offer legal advice, or establish compliance.
 ## Status
 
 The historical replay is a local release candidate with deterministic export,
-fixed comparison scales, accessible numeric tables, licensed thumbnail, and
-portfolio metadata. Phase P0 is complete. P1's execution code is complete: the
+fixed comparison scales, accessible numeric tables, licensed thumbnail,
+portfolio metadata, and a deterministic allowlisted static release package.
+Phase P0 is complete. P1's execution code is complete: the
 pinned SynthID adapter, immutable prompt revisions, tripled calibration
 controls, 33-condition attack matrix, detector scoring, paired comparison,
 cache-to-report builder, resumable ledgers, and one-click quarantined pilot
@@ -113,8 +114,9 @@ pairs to a second independent review context.
 ## Preview the interactive
 
 ```bash
-python -m http.server 8000
-# open http://localhost:8000/site/
+python scripts/build_static_site.py
+python -m http.server 8000 --directory dist
+# open http://localhost:8000/
 ```
 
 The release-candidate page is titled **Text Provenance Lab**. Its evidence
@@ -125,6 +127,15 @@ demonstrator is labeled as a toy, not the benchmark tokenizer or detector.
 extension tables remain pending until the report-data builder finds
 confirmatory artifacts. Portfolio integration metadata is in `portfolio.json`;
 the self-authored thumbnail and CC BY 4.0 notice are under `assets/`.
+
+The static builder verifies all 17 source-artifact hashes and the replay's
+manifest binding, then copies only an explicit public allowlist into `dist/`.
+`make check` separately proves that the tracked replay is byte-for-byte current.
+The package contains
+the site assets, numeric replay derivative, self-authored thumbnail/license, and
+approved methods documents. Raw corpora, notebooks, credentials, Python source,
+result caches, and backend/function code are excluded. Vercel is configured to
+publish this exact build output, but no deployment has been performed.
 
 ## Repository map
 
@@ -148,12 +159,15 @@ scripts/prepare_readability_spotcheck.py
                             Balanced blinded 60-pair review queue
 scripts/reproduce_baseline.py
                             Offline cache verifier and table reproduction
+scripts/build_static_site.py
+                            Deterministic allowlisted public-package builder
 results/                    Preserved coursework artifacts and SHA-256 manifest
 tests/                      Detector-math tests
 PILOT_RUNBOOK.md            Quarantined no-cost GPU pilot handoff
 output/jupyter-notebook/    Colab-ready gated-compute pilot
 REPORT.md                   Paper-structured report; extension results pending
 site/                       Mobile editorial mechanics lab
+dist/                       Generated public package (ignored; build locally)
 docs/ci/quality.yml         Staged GitHub Actions workflow
 PREREGISTRATION.md          Approved and frozen protocol
 DATA_PROVENANCE.md          Dataset and cache lineage

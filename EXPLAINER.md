@@ -99,6 +99,10 @@ Implemented in P2 before results:
 - a release-candidate **Text Provenance Lab** interface with one fixed z-score
   scale across models/conditions, a fixed 0–100% rate scale, denominators,
   accessible numeric tables, and separate unavailable versus not-run states;
+- a deterministic allowlisted 12-file public package whose build verifies the
+  17 source hashes and replay manifest binding while excluding raw prompts,
+  completions, notebooks, credentials, result caches, and executable backend
+  code;
 - a dated November 2026 closest-work review that retires first-evaluation and
   unsupported adoption claims.
 
@@ -107,6 +111,10 @@ why edits disrupt local statistical evidence without pretending to be the
 Gemma/Llama token detector. It is visually and verbally separated from the
 real cached-evidence replay. The browser validates a versioned contract; only
 the deterministic exporter verifies source hashes and summary/array agreement.
+The production validator also recomputes displayed rates, means, and medians
+from the score arrays, requires positive integer counts and the exact expected
+cell identities, and rejects contradictions instead of trusting copied summary
+fields.
 
 Still not complete:
 

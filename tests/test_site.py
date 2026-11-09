@@ -33,6 +33,23 @@ def test_site_design_constraints_and_mobile_breakpoints():
     assert "@media (max-width: 480px)" in css
     assert "border-radius: 2px" in css
     assert "Georgia" in css
+    assert ".table-wrap:focus-visible" in css
+    assert ".rate-tick {" in css and "left: var(--value)" in css
+    assert ".rate-label {" in css and "left: clamp(45px, var(--label-value)" in css
+    assert ".score-dot.control" in css and "rotate(45deg)" in css
+    assert ".score-dot.marked" in css and "border-radius: 50%" in css
+
+
+def test_production_markup_links_accessible_tables_and_exact_rate_ticks():
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+    assert 'role="region"' in app
+    assert 'tabindex="0"' in app
+    assert "ratePercent(cell.tpr)" in app
+    assert "ratePercent(cell.fpr)" in app
+    assert 'class="rate-tick tpr"' in app
+    assert 'class="rate-tick fpr"' in app
+    assert "Baseline is the unmodified historical completion" in app
+    assert '"/historical-replay.json"' in app
 
 
 def test_javascript_syntax_when_node_is_available():
@@ -54,13 +71,11 @@ def test_browser_contract_loading_and_malformed_states():
     assert result.returncode == 0, result.stdout + result.stderr
 
 
-def test_vercel_config_routes_static_site():
+def test_vercel_config_uses_allowlisted_static_build():
     config = json.loads((REPO / "vercel.json").read_text(encoding="utf-8"))
-    rewrites = {item["source"]: item["destination"] for item in config["rewrites"]}
-    assert rewrites["/"] == "/site/index.html"
-    assert rewrites["/app.js"] == "/site/app.js"
-    assert rewrites["/replay_contract.js"] == "/site/replay_contract.js"
-    assert rewrites["/historical-replay.json"] == "/site/data/historical_replay.json"
+    assert config["buildCommand"] == "python3 scripts/build_static_site.py"
+    assert config["outputDirectory"] == "dist"
+    assert "rewrites" not in config
 
 
 def test_portfolio_metadata_and_licensed_thumbnail():

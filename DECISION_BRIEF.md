@@ -1,6 +1,6 @@
 # Decision brief: historical replay release candidate
 
-**Date:** 2026-11-08
+**Date:** 2026-11-09
 
 **Assignment:** `watermark-replay-release-hardening-1`
 
@@ -22,6 +22,12 @@ Article 50 evaluation.
   and measured edit cells using a fixed -4 to 10 z-score axis and fixed 0–100%
   rate scale. No values are silently clipped or rescaled between models.
 - Every view states denominators and has an accessible numeric table.
+- On narrow screens, each wide table is a labeled, keyboard-focusable region
+  with a visible focus ring and arrow-key horizontal scrolling. The page itself
+  does not overflow at 320 CSS pixels.
+- Clean-score controls use diamond marks and watermarked scores use circles, so
+  the distinction does not depend on color. Rate ticks retain their exact
+  geometry at 0% and other edge values while only labels are inset.
 - `not_run` means the experiment did not run. `unavailable` means a measured
   score survives but its transformed text does not. The two states are never
   conflated.
@@ -37,9 +43,12 @@ Article 50 evaluation.
 - The browser validates the complete contract; it no longer treats a copied
   artifact count as verification and does not claim to re-hash source files.
 - Missing/corrupt exporter inputs and stale output fail closed.
-- Browser contract tests reject malformed structures, fabricated values in
-  not-run cells, scores outside the shared axis, malformed JSON, HTTP errors,
-  and network failures. The UI shows no fallback headline metrics.
+- Browser contract tests import the production validator. They require positive
+  integer counts and the exact unique model/length/edit cells, recompute clean
+  and edit rates and summaries from score arrays using strict
+  `score > threshold`, and reject contradictions, malformed arrays, fabricated
+  not-run values, out-of-axis scores, malformed JSON, HTTP errors, and network
+  failures. The UI shows no fallback headline metrics.
 
 ## Integration package
 
@@ -52,6 +61,26 @@ Article 50 evaluation.
   historical values and explicitly marks the paraphrase value scores-only.
 - The self-authored asset is licensed CC BY 4.0 in
   `assets/ASSET_LICENSES.md`.
+- `scripts/build_static_site.py` emits a deterministic 12-file package: 11
+  allowlisted public artifacts plus a build manifest. It verifies all 17 source
+  hashes and the replay's manifest binding before copying; `make check` verifies
+  byte-for-byte replay freshness.
+- Raw corpus JSONL, prompts/completions, notebooks, result caches, credentials,
+  Python source, and backend/function code are absent from the public package.
+- `vercel.json` publishes only the generated `dist/` output. No deployment was
+  performed.
+
+## Verification evidence
+
+- `make PYTHON=python check`: 35 tests passed; all 17 cached hashes and the
+  deterministic replay were verified.
+- Production browser validator: 10 Node tests passed, including contradictory
+  rate/summary cases and exact 0%, 1%, and 100% geometry conversion.
+- Exact-package browser QA at 320 × 844: no page overflow; table keyboard focus,
+  visible outline, and arrow-key scroll confirmed; zero-rate tick remained at
+  the origin; missing replay returned the unavailable state with no fallback;
+  normal reload produced zero console errors or warnings.
+- Exact static inventory and local-link tests passed.
 
 ## Review requirements by concern
 
