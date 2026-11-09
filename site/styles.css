@@ -104,6 +104,35 @@ h2 { max-width: 800px; margin: 0; font-size: clamp(36px, 5vw, 68px); line-height
 .rate-tick.fpr { top: 49px; background: var(--warning); }
 .rate-label.tpr { top: 16px; background: var(--accent); }
 .rate-label.fpr { top: 52px; background: var(--warning); }
+.length-instrument { margin: 28px 0; border: 1px solid var(--line); background: var(--paper); }
+.instrument-heading { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 32px; align-items: end; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+.instrument-heading p { margin: 0; color: var(--muted); font: 12px/1.5 ui-sans-serif, system-ui, sans-serif; }
+.instrument-heading div > p { margin-bottom: 8px; color: var(--accent); font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; }
+.instrument-heading h3 { margin: 0; font-size: clamp(22px, 3vw, 34px); line-height: 1.05; }
+.instrument-scroll { overflow-x: auto; overscroll-behavior-inline: contain; background: #f8f5ed; }
+.instrument-scroll:focus-visible { outline-offset: -4px; }
+.length-instrument-chart { display: block; width: 100%; min-width: 680px; height: auto; }
+.instrument-bed { fill: #f8f5ed; stroke: var(--line); }
+.instrument-grid line { stroke: #d9d3c6; stroke-width: 1; }
+.instrument-grid text, .instrument-token text, .axis-title, .series-label text { fill: var(--muted); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.instrument-token line { stroke: var(--ink); stroke-width: 1; }
+.axis-title { letter-spacing: .08em; }
+.selected-length-band { fill: var(--accent); opacity: .07; }
+.selected-length-rail { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.instrument-line { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.instrument-line.gemma { stroke: var(--accent); }
+.instrument-line.llama { stroke: var(--warning); stroke-dasharray: 8 6; }
+.instrument-point { stroke-width: 2; }
+.instrument-point.gemma { fill: var(--paper); stroke: var(--accent); }
+.instrument-point.llama { fill: var(--paper); stroke: var(--warning); }
+.instrument-point.selected-point { fill: var(--ink); stroke: var(--paper); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: selected-point-in 180ms ease-out both; }
+.series-label.gemma circle { fill: var(--paper); stroke: var(--accent); stroke-width: 2; }
+.series-label.llama rect { fill: var(--paper); stroke: var(--warning); stroke-width: 2; }
+.series-label text { fill: var(--ink); font-weight: 700; }
+.length-instrument figcaption { padding: 15px 22px 17px; border-top: 1px solid var(--line); color: var(--muted); font: 12px/1.55 ui-sans-serif, system-ui, sans-serif; }
+.length-instrument figcaption strong { color: var(--ink); }
+.length-instrument figcaption a { color: var(--accent); }
+@keyframes selected-point-in { from { opacity: .35; transform: scale(.72); transform-origin: center; } to { opacity: 1; transform: scale(1); transform-origin: center; } }
 .table-wrap { margin-top: 28px; overflow-x: auto; border: 1px solid var(--line); background: var(--paper); }
 .table-wrap:focus-visible { outline: 3px solid var(--warning); outline-offset: 3px; }
 table { width: 100%; border-collapse: collapse; font: 12px ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
@@ -158,6 +187,7 @@ footer { display: flex; justify-content: space-between; padding: 28px clamp(20px
   .method-grid { grid-template-columns: 1fr 1fr; }
   .method-grid article { min-height: 220px; }
   .replay-metrics { grid-template-columns: 1fr 1fr; }
+  .instrument-heading { grid-template-columns: 1fr; gap: 12px; }
   .demo-section::before { position: static; display: inline-block; margin-bottom: 20px; }
 }
 
@@ -170,10 +200,13 @@ footer { display: flex; justify-content: space-between; padding: 28px clamp(20px
   .score-panel, .editor-panel { padding: 16px; }
   .replay-controls, .replay-metrics { grid-template-columns: 1fr; }
   .replay-panel { padding: 16px; }
+  .instrument-heading { padding: 17px 16px; }
+  .length-instrument figcaption { padding: 14px 16px 16px; }
   .panel-topline { align-items: flex-start; gap: 12px; }
   footer { flex-direction: column; gap: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .instrument-point.selected-point { animation: none; }
 }
