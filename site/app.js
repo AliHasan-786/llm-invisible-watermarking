@@ -63,6 +63,64 @@ function scorePlot(clean, axis) {
   </div>${scoreAxis(axis)}<div class="plot-key"><span><i class="control"></i>Control scores (diamonds)</span><span><i class="marked"></i>Watermarked scores (circles)</span></div>`;
 }
 
+function lengthInstrument(data, selectedModelKey, selectedIndex) {
+  const width = 860;
+  const height = 310;
+  const left = 58;
+  const right = 150;
+  const top = 32;
+  const bottom = 52;
+  const plotWidth = width - left - right;
+  const plotHeight = height - top - bottom;
+  const modelKeys = ["gemma", "llama"];
+  const modelLabels = { gemma: "Gemma 2 9B", llama: "Llama 3.1 8B" };
+  const sourceLinks = {
+    gemma: "https://github.com/AliHasan-786/llm-invisible-watermarking/blob/e794de39b9100dc51bdbff398f0a35b986abcd4b/results/length_curves_gemma.json",
+    llama: "https://github.com/AliHasan-786/llm-invisible-watermarking/blob/e794de39b9100dc51bdbff398f0a35b986abcd4b/results/length_curves_llama.json",
+  };
+  const cells = data.models[selectedModelKey].lengthCells;
+  const selected = cells[selectedIndex];
+  const x = (index) => left + (plotWidth * index) / (cells.length - 1);
+  const y = (value) => top + plotHeight * (1 - value);
+  const gridValues = [0, 0.25, 0.5, 0.75, 1];
+  const grids = gridValues.map((value) => `<g class="instrument-grid"><line x1="${left}" y1="${y(value)}" x2="${left + plotWidth}" y2="${y(value)}"></line><text x="${left - 10}" y="${y(value) + 4}" text-anchor="end">${Math.round(value * 100)}%</text></g>`).join("");
+  const tokenTicks = cells.map((cell, index) => `<g class="instrument-token"><line x1="${x(index)}" y1="${top + plotHeight}" x2="${x(index)}" y2="${top + plotHeight + 7}"></line><text x="${x(index)}" y="${height - 18}" text-anchor="middle">${cell.tokens}</text></g>`).join("");
+  const series = modelKeys.map((key) => {
+    const modelCells = data.models[key].lengthCells;
+    const points = modelCells.map((cell, index) => `${x(index)},${y(cell.tpr)}`).join(" ");
+    const markers = modelCells.map((cell, index) => {
+      const selectedClass = key === selectedModelKey && index === selectedIndex ? " selected-point" : "";
+      const label = `${modelLabels[key]}, ${cell.tokens} tokens, TPR ${percent(cell.tpr)}, watermarked n=${cell.nWatermarked}, control n=${cell.nControl}`;
+      if (key === "gemma") return `<circle class="instrument-point gemma${selectedClass}" cx="${x(index)}" cy="${y(cell.tpr)}" r="5"><title>${label}</title></circle>`;
+      return `<rect class="instrument-point llama${selectedClass}" x="${x(index) - 5}" y="${y(cell.tpr) - 5}" width="10" height="10"><title>${label}</title></rect>`;
+    }).join("");
+    return `<polyline class="instrument-line ${key}" points="${points}"></polyline>${markers}`;
+  }).join("");
+  const gemmaEnd = data.models.gemma.lengthCells.at(-1);
+  const llamaEnd = data.models.llama.lengthCells.at(-1);
+  const selectedX = x(selectedIndex);
+  const selectedModel = data.models[selectedModelKey];
+  const ariaLabel = `Historical true positive rate by text length on a fixed zero to one hundred percent scale. Selected ${modelLabels[selectedModelKey]}, ${selected.tokens} tokens: TPR ${percent(selected.tpr)}, FPR ${percent(selected.fpr)}, watermarked n=${selected.nWatermarked}, control n=${selected.nControl}.`;
+  return `<figure class="length-instrument">
+    <div class="instrument-heading"><div><p>Historical TPR by text length</p><h3>Detection generally rose with longer samples.</h3></div><p>Select a length above to move the focus rail. Straight segments connect saved cells. They do not add unmeasured evidence.</p></div>
+    <div class="instrument-scroll" role="region" aria-label="Scrollable historical length comparison" tabindex="0">
+      <svg class="length-instrument-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(ariaLabel)}">
+        <rect class="instrument-bed" x="${left}" y="${top}" width="${plotWidth}" height="${plotHeight}"></rect>
+        ${grids}
+        <rect class="selected-length-band" x="${selectedX - 19}" y="${top}" width="38" height="${plotHeight}"></rect>
+        <line class="selected-length-rail" x1="${selectedX}" y1="${top}" x2="${selectedX}" y2="${top + plotHeight}"></line>
+        ${series}
+        ${tokenTicks}
+        <text class="axis-title" x="${left}" y="17">TRUE POSITIVE RATE</text>
+        <text class="axis-title" x="${left + plotWidth}" y="${height - 2}" text-anchor="end">TOKENS</text>
+        <g class="series-label gemma"><circle cx="${left + plotWidth + 18}" cy="${y(gemmaEnd.tpr) - 10}" r="5"></circle><text x="${left + plotWidth + 31}" y="${y(gemmaEnd.tpr) - 6}">Gemma ${percent(gemmaEnd.tpr)}</text></g>
+        <g class="series-label llama"><rect x="${left + plotWidth + 13}" y="${y(llamaEnd.tpr) + 7}" width="10" height="10"></rect><text x="${left + plotWidth + 31}" y="${y(llamaEnd.tpr) + 16}">Llama ${percent(llamaEnd.tpr)}</text></g>
+      </svg>
+    </div>
+    <figcaption><strong>${modelLabels[selectedModelKey]}, ${selected.tokens} tokens:</strong> ${percent(selected.tpr)} TPR from ${selected.nWatermarked} watermarked samples; ${percent(selected.fpr)} FPR from ${selected.nControl} controls; threshold ${selected.threshold.toFixed(3)}. Sources: <a href="${sourceLinks.gemma}">Gemma length cells</a> and <a href="${sourceLinks.llama}">Llama length cells</a>. These are saved historical measurements, not a live detector run.</figcaption>
+  </figure>`;
+}
+
 function scoreSummaryRows(clean) {
   const groups = [
     ["Control", clean.controlScores],
@@ -98,7 +156,7 @@ function editTable(model, selectedIndex) {
   const rows = model.editCells.map((cell, index) => {
     const measured = cell.status === "measured_historical";
     const textState = cell.transformedTextState === "not_applicable" ? "Not applicable" : measured ? "Unavailable" : "Not run";
-    return `<tr${index === selectedIndex ? ' class="selected-row"' : ""}><th scope="row">${escapeHtml(readableCondition(cell.condition))}</th><td>${measured ? "Measured historical" : "Not run"}</td><td>${cell.n ?? "—"}</td><td>${percent(cell.tprAtHistoricalThreshold)}</td><td>${cell.meanZ === null ? "—" : cell.meanZ.toFixed(3)}</td><td>${cell.medianZ === null ? "—" : cell.medianZ.toFixed(3)}</td><td>${textState}</td></tr>`;
+    return `<tr${index === selectedIndex ? ' class="selected-row"' : ""}><th scope="row">${escapeHtml(readableCondition(cell.condition))}</th><td>${measured ? "Measured historical" : "Not run"}</td><td>${cell.n ?? "Not run"}</td><td>${percent(cell.tprAtHistoricalThreshold)}</td><td>${cell.meanZ === null ? "Not run" : cell.meanZ.toFixed(3)}</td><td>${cell.medianZ === null ? "Not run" : cell.medianZ.toFixed(3)}</td><td>${textState}</td></tr>`;
   }).join("");
   return tableShell(
     `All historical edit cells for ${model.modelId}`,
@@ -153,7 +211,7 @@ function renderReplay() {
       ${metric("Cached TPR", percent(cell.tpr), `n=${cell.nWatermarked}`)}
       ${metric("Cached FPR", percent(cell.fpr), `n=${cell.nControl}`)}
       ${metric("Per-length threshold", cell.threshold.toFixed(3), `${cell.tokens} tokens`)}
-    </div><div class="rate-plot" role="img" aria-label="TPR ${percent(cell.tpr)} and FPR ${percent(cell.fpr)} on a fixed zero to one-hundred-percent scale"><i class="rate-tick tpr" aria-hidden="true" style="--value:${tprPosition}%"></i><span class="rate-label tpr" style="--label-value:${tprPosition}%">TPR ${percent(cell.tpr)}</span><i class="rate-tick fpr" aria-hidden="true" style="--value:${fprPosition}%"></i><span class="rate-label fpr" style="--label-value:${fprPosition}%">FPR ${percent(cell.fpr)}</span></div><div class="rate-axis"><span>0%</span><span>50%</span><span>100%</span></div>${lengthTable(model, selectedIndex)}<p class="replay-note">Every rate tick stays at its exact value on a fixed 0–100% scale; only the text label is inset at the edges. This historical cell used its own threshold on the same cache; it is descriptive, not held-out confirmatory calibration.</p>`;
+    </div>${lengthInstrument(replayData, replayModel.value, selectedIndex)}<div class="rate-plot" role="img" aria-label="TPR ${percent(cell.tpr)} and FPR ${percent(cell.fpr)} on a fixed zero-to-one-hundred-percent scale"><i class="rate-tick tpr" aria-hidden="true" style="--value:${tprPosition}%"></i><span class="rate-label tpr" style="--label-value:${tprPosition}%">TPR ${percent(cell.tpr)}</span><i class="rate-tick fpr" aria-hidden="true" style="--value:${fprPosition}%"></i><span class="rate-label fpr" style="--label-value:${fprPosition}%">FPR ${percent(cell.fpr)}</span></div><div class="rate-axis"><span>0%</span><span>50%</span><span>100%</span></div>${lengthTable(model, selectedIndex)}<p class="replay-note">Every rate tick stays at its exact value on a fixed 0–100% scale. Only the text label moves inward at the edges. This historical cell used its own threshold on the same cache. It is descriptive, not held-out confirmatory calibration.</p>`;
     return;
   }
   const transformedTextValue = cell.transformedTextState === "not_applicable" ? "Not applicable" : "Unavailable";
@@ -179,7 +237,7 @@ async function loadReplay() {
     renderReplay();
   } catch (error) {
     replayData = null;
-    replayStatus.textContent = "Replay unavailable · saved evidence contract did not load or validate";
+    replayStatus.textContent = "Replay unavailable. The saved evidence contract did not load or validate.";
     replayPanel.innerHTML = `<div class="not-run unavailable"><strong>Unavailable</strong><p>The saved evidence contract could not be validated. No fallback values or headline metrics are shown.</p><small>${escapeHtml(error.message)}</small></div>`;
   }
 }
@@ -287,8 +345,8 @@ function applyAttack(kind) {
 
 document.querySelector("#generateButton").addEventListener("click", () => {
   textarea.value = generatedSample();
-  beforeScore.textContent = "—";
-  afterScore.textContent = "—";
+  beforeScore.textContent = "Not set";
+  afterScore.textContent = "Not set";
   deltaCopy.textContent = "Choose a transformation to compare scores.";
   render();
 });

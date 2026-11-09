@@ -17,7 +17,8 @@ comparison, offer legal advice, or establish compliance.
 
 The historical replay is live at
 [`text-provenance-lab.vercel.app`](https://text-provenance-lab.vercel.app), with deterministic export,
-fixed comparison scales, accessible numeric tables, licensed thumbnail,
+fixed comparison scales, a source-linked historical length instrument,
+accessible numeric tables, licensed thumbnail,
 portfolio metadata, and a deterministic allowlisted static release package.
 Phase P0 is complete. P1's execution code is complete: the
 pinned SynthID adapter, immutable prompt revisions, tripled calibration
@@ -122,7 +123,9 @@ python -m http.server 8000 --directory dist
 
 The production page is titled **Text Provenance Lab**. Its evidence
 replay uses only preserved coursework values, fixed disclosed scales, explicit
-denominators, and numeric table alternatives. The separate word-level mechanics
+denominators, direct series labels, redundant marker styles, and numeric table
+alternatives. Straight chart segments connect only saved length cells and do
+not introduce interpolated evidence. The separate word-level mechanics
 demonstrator is labeled as a toy, not the benchmark tokenizer or detector.
 `REPORT.md` retains the frozen study title internally and stays result-safe:
 extension tables remain pending until the report-data builder finds

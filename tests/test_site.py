@@ -16,11 +16,11 @@ def test_site_has_required_interactions_and_honest_scope():
         "Paraphrase proxy",
         "Translation proxy",
         "Cut to half",
-        "no SynthID or confirmatory result exists yet",
+        "The separate Kirchenbauer and SynthID study is planned but has not run.",
         "not the cached detector",
         "does not pronounce legal compliance",
         "data-historical-replay",
-        "The deterministic exporter—not this browser—verified",
+        "The deterministic exporter verified all 17 source-artifact hashes",
         "https://ali-hasan-ai.vercel.app",
         "https://github.com/AliHasan-786/llm-invisible-watermarking",
     ):
@@ -38,6 +38,11 @@ def test_site_design_constraints_and_mobile_breakpoints():
     assert ".rate-label {" in css and "left: clamp(45px, var(--label-value)" in css
     assert ".score-dot.control" in css and "rotate(45deg)" in css
     assert ".score-dot.marked" in css and "border-radius: 50%" in css
+    assert ".instrument-line.gemma" in css
+    assert ".instrument-line.llama" in css and "stroke-dasharray" in css
+    assert ".instrument-point.selected-point" in css
+    assert "@media (prefers-reduced-motion: reduce)" in css
+    assert ".instrument-point.selected-point { animation: none; }" in css
 
 
 def test_production_markup_links_accessible_tables_and_exact_rate_ticks():
@@ -50,6 +55,22 @@ def test_production_markup_links_accessible_tables_and_exact_rate_ticks():
     assert 'class="rate-tick fpr"' in app
     assert "Baseline is the unmodified historical completion" in app
     assert '"/historical-replay.json"' in app
+    assert "function lengthInstrument" in app
+    assert 'role="region" aria-label="Scrollable historical length comparison" tabindex="0"' in app
+    assert 'class="instrument-line ${key}"' in app
+    assert "Straight segments connect saved cells" in app
+    assert "e794de39b9100dc51bdbff398f0a35b986abcd4b/results/length_curves_gemma.json" in app
+    assert "e794de39b9100dc51bdbff398f0a35b986abcd4b/results/length_curves_llama.json" in app
+
+
+def test_visitor_copy_is_direct_and_has_no_em_dash():
+    visitor_copy = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (SITE / "index.html", SITE / "app.js")
+    )
+    assert "—" not in visitor_copy
+    for stock_phrase in ("delve into", "unlock the potential", "seamlessly integrate"):
+        assert stock_phrase not in visitor_copy.lower()
 
 
 def test_javascript_syntax_when_node_is_available():
