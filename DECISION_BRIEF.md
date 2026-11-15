@@ -1,92 +1,93 @@
-# Decision brief: historical replay release closeout
+# Decision brief: historical length evidence instrument
 
 **Date:** 2026-11-09
 
-**Assignment:** `watermark-release-closeout-1`
+**Assignment:** `watermark-presentation-visual-1`
 
-**Base:** merged `main` at `27f3f89ec2368f324ef24c3a2fcfd92c3214ca10`
+**Base:** accepted closeout on `main` at
+`e33773b8fd67818b9a55e21f46a246e8de7c1813`
 
-**Gate:** source metadata and deployment-safety closeout; scientific execution remains stopped
+**Gate:** visual and interaction review only; no deployment, merge, or scientific execution
 
 ## Recommended call
 
-Accept the historical replay release as closed once this metadata revision is
-on `main` and its bounded public-release workflow passes. Continue to describe
-the live artifact as a historical Kirchenbauer coursework replay. Do not imply
-that SynthID, the pilot, or the confirmatory Article 50 study ran.
+Approve this feature branch for presentation review. The candidate turns the
+eight preserved length cells for each model into one direct, fixed-scale signal
+instrument while retaining the exact numeric table. It does not add a result,
+smooth a curve, alter a source cache, or imply that the planned SynthID study
+ran.
 
-## Actual release record
+## What changed
 
-- Independently reviewed source:
-  `e794de39b9100dc51bdbff398f0a35b986abcd4b`.
-- Normal merge commit:
-  `27f3f89ec2368f324ef24c3a2fcfd92c3214ca10`.
-- Production project: `text-provenance-lab`.
-- Stable URL: `https://text-provenance-lab.vercel.app`.
-- Ready production deployment: `dpl_4DHxhKGFWBjyw3Q9cPM2nM8Wxga6`.
-- Ready preview deployment: `dpl_Eg4jMgC9eKSNvetCKu6H3egZrjqZ`; browser
-  access is Vercel-authentication protected and was not bypassed.
-- Canceled first deployment: `dpl_7RrFSEz93CDNDp3go3jP888nbvFQ`.
-- Portfolio-hub snapshot: `288ec81`; its deployment verification remains a
-  separate coordinator task.
+- The Length cells view now compares the 16 saved TPR measurements on a fixed
+  0 to 100% scale. Straight segments connect only measured cells.
+- Gemma uses a solid line and circular markers. Llama uses a dashed line and
+  square markers, so the comparison does not depend on color.
+- The existing model and measured-cell controls move a focus rail and update
+  the exact TPR, FPR, threshold, watermarked count, and control count.
+- Direct endpoint labels identify the two series without a detached legend.
+- The figure links to both reviewed JSON sources at commit `e794de3` and says
+  that the values are historical measurements, not a live detector run.
+- The chart remains a named, keyboard-focusable horizontal scroll region at
+  320px. The full numeric table remains the non-visual alternative.
+- Visitor copy now addresses the reader directly, and null states say `Not run`
+  or `Not set` rather than relying on an em dash.
 
-The live page was checked at the stable URL. The Llama paraphrase selection
-shows the preserved 27.3% scores-only result and the provenance boundary. It
-does not present a SynthID or confirmatory result.
+## Evidence boundary
 
-## Deployment defect and permanent guard
+The instrument reads the existing deterministic browser contract. It does not
+change the 17 verified source artifacts, their hashes, the replay manifest, the
+frozen protocol, or the exact 12-file public allowlist. The separate word-level
+mechanics demo remains labeled illustrative and is not presented as detector
+output. Saved score-only evidence, missing transformed text, and unrun study
+cells retain their distinct states.
 
-The first Vercel CLI attempt unexpectedly targeted production and began
-installing the repository's full research requirements, including Torch/CUDA
-packages. The coordinator canceled it. The Vercel project was then configured
-with `installCommand: "true"`, and the ready production deployment used that
-setting.
+## Design rationale and credits
 
-This source revision makes the guard portable in `vercel.json` and tests it.
-The static builder remains standard-library-only and publishes the same exact
-12-file package: 11 allowlisted artifacts plus its build manifest. Raw corpus
-JSONL, prompts/completions, NPZ caches, notebooks, credentials, Python research
-code, and backend/functions are not in the output.
+- Anatomy informed the instrument framing: one physical-feeling focus rail,
+  exact readouts, and a strict split between mechanism and evidence.
+- UI/UX Pro Max informed direct series labels, redundant line and marker
+  encoding, visible keyboard focus, table fallback, narrow-screen scrolling,
+  and reduced-motion behavior.
+- 3Dviz Pro Max informed the decision not to add unsupported depth or a heavy
+  renderer. A flat evidence plot is the truthful representation for these
+  two-dimensional saved measurements.
+- The graph animation guidance informed the use of real values, plain labels,
+  straight segments, and a single 180ms selected-point cue. Motion is removed
+  when reduced motion is requested.
 
-## Metadata boundary
+Representative captures:
 
-`portfolio.json` now records the production URL and state. It distinguishes:
+- `output/playwright/watermark-length-instrument-desktop.png`
+- `output/playwright/watermark-length-instrument-mobile.png`
 
-- `reviewedSourceCommit`: the exact independently reviewed release source;
-- `sourceMergeCommit`: the merge that placed that source on `main`; and
-- `metadataRevision: git:containing-commit`: an explicit instruction to use
-  the Git revision containing the metadata file, avoiding an impossible
-  self-referential commit hash.
+## Review evidence
 
-The root portfolio handoff records the resulting containing revision after the
-commit exists.
+The exact built package was served locally and checked in a real Chromium
+browser. The desktop and 320px views were inspected. Model and length selection
+updated to the saved values. At 320px the page itself remained 320px wide while
+the named chart region scrolled independently from 244px to its 680px content
+width. Keyboard focus produced a visible outline, Arrow Right moved the chart
+40px, reduced motion set the selected-point animation to `none`, and the browser
+console had zero errors or warnings. At 200% root text scaling the document
+still matched the 320px viewport and kept the chart overflow inside its named
+scroll region.
 
-## Bounded CI
+The full release gate passed before review handoff:
 
-`.github/workflows/public-release.yml` is a no-cost, dependency-free public
-release smoke workflow. It:
-
-1. runs the standard-library static builder, verifying all 17 source hashes and
-   the exact public-package inventory;
-2. runs the 10 production browser-contract tests;
-3. checks the shipped JavaScript syntax; and
-4. verifies that Vercel dependency installation is disabled.
-
-It does not install `requirements.txt`, Torch, CUDA, model weights, or provider
-packages. It is accurately named and does not claim full scientific validation;
-`make check` remains the complete local cache/detector/replay check.
+- `make PYTHON=python check`: 37 tests passed, all 17 cached artifacts matched
+  their SHA-256 digests, baseline reproduction passed, and replay freshness
+  passed.
+- `node --test tests/js/replay_contract.test.js`: all 10 browser-contract tests
+  passed.
+- `python scripts/build_static_site.py --output <candidate-dir>`: 11 allowlisted
+  artifacts plus the build manifest were produced.
+- `node --check site/app.js`, the exact public inventory check, secret scans,
+  and `git diff --check` passed.
 
 ## Remaining gates
 
-- No new deployment is needed for this metadata-only closeout. The coordinator
-  may connect Git after the safe source configuration is on `main`.
-- The portfolio-hub deployment for snapshot `288ec81` still needs coordinator
-  verification.
-- Any pilot or confirmatory run still requires exact frozen revisions,
-  personally supplied credentials, an appropriate no-cost GPU, and the existing
-  scientific decision protocol.
-- Paid compute, provider access, model inference, a scientific/legal-review
-  waiver, and new public claims remain out of scope.
-
-No old reviewer automation was invoked. No provider/model access, inference,
-GPU run, dependency download, spend, or deployment occurred in this closeout.
+- Coordinator or reviewer approval is required before merge.
+- Deployment and promotion are explicitly out of scope for this assignment.
+- Any pilot, confirmatory run, provider/model access, credentials, paid compute,
+  or new public scientific claim remains separately gated.

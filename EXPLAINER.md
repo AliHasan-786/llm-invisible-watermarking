@@ -99,6 +99,10 @@ Implemented in P2 before results:
 - a production **Text Provenance Lab** interface with one fixed z-score
   scale across models/conditions, a fixed 0–100% rate scale, denominators,
   accessible numeric tables, and separate unavailable versus not-run states;
+- a source-linked historical length instrument that compares all 16 measured
+  TPR cells on one fixed 0–100% scale, uses redundant line and marker styles,
+  moves a focus rail with the existing measured-cell control, and preserves the
+  full numeric table as the non-visual alternative;
 - a deterministic allowlisted 12-file public package whose build verifies the
   17 source hashes and replay manifest binding while excluding raw prompts,
   completions, notebooks, credentials, result caches, and executable backend
@@ -115,6 +119,15 @@ The production validator also recomputes displayed rates, means, and medians
 from the score arrays, requires positive integer counts and the exact expected
 cell identities, and rejects contradictions instead of trusting copied summary
 fields.
+
+The length instrument is an evidence reader, not a new analysis. Its straight
+segments connect adjacent saved cells without smoothing or interpolation, and
+its caption repeats the selected TPR, FPR, threshold, and denominators. Both
+series stay distinguishable without color. On narrow screens only the chart
+canvas scrolls, while the page remains fixed to the viewport. The scroll region
+is keyboard focusable, the numeric table remains available, and the selected
+point cue disappears under reduced motion. A flat SVG was chosen over 3D because
+token length and TPR are the only supported dimensions in the preserved data.
 
 The historical replay is deployed at
 `https://text-provenance-lab.vercel.app`. Its independently reviewed source is

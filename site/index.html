@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Inspect hash-verified historical text-watermark detector evidence across models, lengths, and edits, with a separate mechanics demonstrator.">
     <meta property="og:title" content="Text Provenance Lab">
-    <meta property="og:description" content="A transparent replay of preserved watermark detector evidence—plus the frozen protocol for a planned comparison.">
+    <meta property="og:description" content="Replay preserved watermark detector evidence and read the frozen protocol for a planned comparison.">
     <meta property="og:image" content="/assets/text-provenance-lab-thumbnail.svg">
     <title>Text Provenance Lab · Historical evidence replay</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23171714'/%3E%3Ctext x='5' y='23' fill='%23f3efe5' font-size='20'%3EW%3C/text%3E%3C/svg%3E">
@@ -27,7 +27,7 @@
       <section class="hero rule-bottom">
         <p class="eyebrow">Completed historical replay · planned comparison kept separate</p>
         <h1>Text Provenance Lab</h1>
-        <p class="dek">Inspect preserved detector scores from a completed coursework watermark study across two models, eight text lengths, and recorded edit conditions. A separate preregistered protocol plans a future Kirchenbauer–SynthID comparison; no SynthID or confirmatory result exists yet.</p>
+        <p class="dek">Inspect preserved detector scores from a completed coursework study. Compare two models across eight text lengths and recorded edit conditions. The separate Kirchenbauer and SynthID study is planned but has not run.</p>
         <div class="status-line" role="status">
           <span class="status-dot" aria-hidden="true"></span>
           <span><strong>Available now:</strong> hash-verified historical Kirchenbauer evidence. <strong>Not run:</strong> the planned SynthID extension and confirmatory Article 50 evaluation.</span>
@@ -40,7 +40,7 @@
             <p class="eyebrow">01 · Evidence on disk</p>
             <h2>Clean detection was strong. Rewriting was the warning.</h2>
           </div>
-          <p class="aside">Coursework baseline replayed from committed score arrays. Select a model and evidence view; every denominator and scale is shown.</p>
+          <p class="aside">Select a model and evidence view. Every number comes from committed coursework arrays, with its sample count and fixed scale.</p>
         </div>
 
         <div class="replay" data-historical-replay>
@@ -52,7 +52,7 @@
           <div id="replayStatus" class="replay-status" role="status">Loading and validating the saved replay contract…</div>
           <div id="replayPanel" class="replay-panel" aria-live="polite"></div>
         </div>
-        <p class="source-note">The deterministic exporter—not this browser—verified all 17 source-artifact hashes and checked summaries against score arrays before writing the replay contract. The browser validates that contract and fails closed. Historical thresholds did not preserve a calibration/held-out split; length cells recalibrated at each length. The Llama paraphrase score series survives, but its rewritten texts are unavailable. <a href="/docs/HISTORICAL_REPLAY_CONTRACT.md">Read the contract</a>.</p>
+        <p class="source-note">The deterministic exporter verified all 17 source-artifact hashes and checked each summary against its score array. The browser validates that saved contract and fails closed. Historical thresholds did not preserve a calibration and held-out split. Length cells recalibrated at each length. The Llama paraphrase scores survive, but the rewritten texts are unavailable. <a href="/docs/HISTORICAL_REPLAY_CONTRACT.md">Read the contract</a>.</p>
       </section>
 
       <section id="lab" class="section lab-section demo-section rule-bottom">
@@ -90,8 +90,8 @@
               <div><dt>Demo threshold</dt><dd>2.33</dd></div>
             </dl>
             <div class="comparison">
-              <div><span>Before</span><strong id="beforeScore">—</strong></div>
-              <div><span>After</span><strong id="afterScore">—</strong></div>
+              <div><span>Before</span><strong id="beforeScore">Not set</strong></div>
+              <div><span>After</span><strong id="afterScore">Not set</strong></div>
               <p id="deltaCopy">Choose a transformation to compare scores.</p>
             </div>
           </div>
@@ -115,7 +115,7 @@
 
       <section class="section caveat">
         <p class="eyebrow">Scope</p>
-        <p>The completed replay covers two English-language models and one Kirchenbauer-style scheme. The planned study would test an open-source SynthID implementation—not Google's production deployment—with author-run attacks and hundreds, not tens of thousands, of calibration controls. No legal advice.</p>
+        <p>The completed replay covers two English-language models and one Kirchenbauer-style scheme. The planned study would test an open-source SynthID implementation, not Google's production deployment. Its attacks are author-run, and its calibration controls number in the hundreds rather than tens of thousands. This is not legal advice.</p>
         <div class="links"><a href="/REPORT.md">Historical report</a><a href="/PREREGISTRATION.md">Frozen future protocol</a><a href="/DATA_PROVENANCE.md">Data provenance</a><a href="https://github.com/AliHasan-786/llm-invisible-watermarking">Source repository</a><a href="https://ali-hasan-ai.vercel.app">Return to portfolio</a></div>
       </section>
     </main>
